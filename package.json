@@ -1,0 +1,16 @@
+{
+  "name": "liveswitch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "http-server ./src",
+    "tailwind:watch": "tailwindcss -i ./src/base.css -o ./src/dist/output.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.2.7"
+  }
+}
