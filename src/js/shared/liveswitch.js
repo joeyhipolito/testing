@@ -17,6 +17,7 @@ window.Liveswitch = window.Liveswitch || {};
       this.maxRegisterBackoff = 60000;
       this.unregistering = false;
       this.layoutManager = new fm.liveswitch.DomLayoutManager(this.mainContainer.get(0));
+      this.layoutManager.setMode(fm.liveswitch.LayoutMode.Inline);
       this.downstreamConnections = {};
       // Create a new local media for screen capturing.
       this.localScreenMedia = new fm.liveswitch.LocalMedia(false, true, true);
@@ -42,7 +43,7 @@ window.Liveswitch = window.Liveswitch || {};
         this.client.getDeviceId(),
         this.client.getId(),
         null,
-        [new fm.liveswitch.ChannelClaim(channelId || this.channelId)],
+        [new fm.liveswitch.ChannelClaim(this.channelId)],
         this.sharedSecret
       );
 
@@ -63,9 +64,6 @@ window.Liveswitch = window.Liveswitch || {};
         ) {
           fm.liveswitch.Log.debug(
             `Registering with backoff = ${this.reRegisterBackoff}.`
-          );
-          this.displayMessage(
-            "Client unregistered unexpectedly, trying to re-register."
           );
 
           // Re-register after a backoff.
@@ -97,7 +95,7 @@ window.Liveswitch = window.Liveswitch || {};
         .register(token)
         .then((channels) => {
           this.onClientRegistered(channels);
-          promise.resolve(null);
+          promise.resolve(channels);
         })
         .fail((ex) => {
           fm.liveswitch.Log.error("Failed to register with Gateway.");
@@ -112,20 +110,13 @@ window.Liveswitch = window.Liveswitch || {};
       this.unregistering = true;
       return this.client
         .unregister()
-        .then(() =>
-          this.displayMessage(
-            `Client ${this.client.getId()} has successfully unregistered from channel ${this.channel.getId()}.`
-          )
-        )
+        .then(() => {})
         .fail(() => fm.liveswitch.Log.error("Unregistration failed."));
     };
 
     MediaStreamingLogic.prototype.onClientRegistered = function (channels) {
       // Store our channel reference.
       this.channel = channels[0];
-      this.displayMessage(
-        `Client ${this.client.getId()} has successfully connected to channel ${this.channel.getId()}, Hello World!`
-      );
 
       // Open a new SFU upstream connection.
       this.upstreamConnection = this.openSfuUpstreamConnection(this.localMedia);
@@ -256,11 +247,6 @@ window.Liveswitch = window.Liveswitch || {};
     };
     MediaStreamingLogic.downstreamConnections = {};
 
-    MediaStreamingLogic.prototype.displayMessage = function (msg) {
-      const textContainer = this.textContainer;
-      textContainer.append(document.createTextNode(msg));
-      textContainer.append('<br/>');
-    };
     return MediaStreamingLogic;
   })();
   Liveswitch.MediaStreamingLogic = MediaStreamingLogic;

@@ -3,8 +3,8 @@
     <head>
         <link rel="stylesheet" href="/dist/output.css">
     </head>
-    <body>
-        <div class="flex flex-row xl:container md:mx-auto px-2 h-screen items-center">
+    <body class="relative overflow-hidden">
+        <div id="ls-parent" class="flex flex-row xl:container md:mx-auto px-2 h-screen items-center">
           <div class="basis-3/4 h-4/6 flex flex-col justify-center items-center">
             <div id="ls-container" class="h-5/6 rounded-xl overflow-hidden lg:w-8/12 w-full flex items-center justify-center relative"></div>
             <div id="ls-device-control-container" class="lg:w-8/12 w-full flex flex-1 h-1/6 items-start mt-2">
@@ -92,7 +92,113 @@
               </div>
             </div>
           </div>
-          <div id="ls-text-container" class="basis-1/4 h-4/6 bg-gray-100"></div>
+          <id id="ls-channel-information" class="basis-1/4 h-4/6 flex flex-col justify-center">
+            <a id="ls-join" href="" class="w-24 bg-blue-400 text-white text-center rounded-full px-8 py-2 shadow-lg">Join</a>
+          </id>
+          
+        </div>
+
+        <div id="ls-chat-container" class="px-5 shadow-lg flex flex-col justify-between transition-all absolute -right-96 top-12 bottom-12 w-96 bg-white rounded-sm overflow-hidden py-4">
+
+          <div id="messages" class="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
+            <div class="chat-message">
+               <div class="flex items-end">
+                  <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 items-start">
+                     <div><span class="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600">Can be verified on any platform using docker</span></div>
+                  </div>
+                  
+               </div>
+            </div>
+            <div class="chat-message">
+               <div class="flex items-end justify-end">
+                  <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-1 items-end">
+                     <div><span class="px-4 py-2 rounded-lg inline-block rounded-br-none bg-blue-600 text-white ">Your error message says permission denied, npm global installs must be given root privileges.</span></div>
+                  </div>
+                  
+               </div>
+            </div>
+            <div class="chat-message">
+               <div class="flex items-end">
+                  <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 items-start">
+                     <div><span class="px-4 py-2 rounded-lg inline-block bg-gray-300 text-gray-600">Command was run with root privileges. I'm sure about that.</span></div>
+                     <div><span class="px-4 py-2 rounded-lg inline-block bg-gray-300 text-gray-600">I've update the description so it's more obviously now</span></div>
+                     <div><span class="px-4 py-2 rounded-lg inline-block bg-gray-300 text-gray-600">FYI https://askubuntu.com/a/700266/510172</span></div>
+                     <div>
+                        <span class="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600">
+                           Check the line above (it ends with a # so, I'm running it as root )
+                           <pre># npm install -g @vue/devtools</pre>
+                        </span>
+                     </div>
+                  </div>
+                  
+               </div>
+            </div>
+            <div class="chat-message">
+               <div class="flex items-end justify-end">
+                  <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-1 items-end">
+                     <div><span class="px-4 py-2 rounded-lg inline-block rounded-br-none bg-blue-600 text-white ">Any updates on this issue? I'm getting the same error when trying to install devtools. Thanks</span></div>
+                  </div>
+                  
+               </div>
+            </div>
+            <div class="chat-message">
+               <div class="flex items-end">
+                  <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 items-start">
+                     <div><span class="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600">Thanks for your message David. I thought I'm alone with this issue. Please, ? the issue to support it :)</span></div>
+                  </div>
+                  
+               </div>
+            </div>
+            <div class="chat-message">
+               <div class="flex items-end justify-end">
+                  <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-1 items-end">
+                     <div><span class="px-4 py-2 rounded-lg inline-block bg-blue-600 text-white ">Are you using sudo?</span></div>
+                     <div><span class="px-4 py-2 rounded-lg inline-block rounded-br-none bg-blue-600 text-white ">Run this command sudo chown -R `whoami` /Users/{{your_user_profile}}/.npm-global/ then install the package globally without using sudo</span></div>
+                  </div>
+                  
+               </div>
+            </div>
+            <div class="chat-message">
+               <div class="flex items-end">
+                  <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 items-start">
+                     <div><span class="px-4 py-2 rounded-lg inline-block bg-gray-300 text-gray-600">It seems like you are from Mac OS world. There is no /Users/ folder on linux ?</span></div>
+                     <div><span class="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600">I have no issue with any other packages installed with root permission globally.</span></div>
+                  </div>
+                  
+               </div>
+            </div>
+            <div class="chat-message">
+               <div class="flex items-end justify-end">
+                  <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-1 items-end">
+                     <div><span class="px-4 py-2 rounded-lg inline-block rounded-br-none bg-blue-600 text-white ">yes, I have a mac. I never had issues with root permission as well, but this helped me to solve the problem</span></div>
+                  </div>
+                  
+               </div>
+            </div>
+            <div class="chat-message">
+               <div class="flex items-end">
+                  <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 items-start">
+                     <div><span class="px-4 py-2 rounded-lg inline-block bg-gray-300 text-gray-600">I get the same error on Arch Linux (also with sudo)</span></div>
+                     <div><span class="px-4 py-2 rounded-lg inline-block bg-gray-300 text-gray-600">I also have this issue, Here is what I was doing until now: #1076</span></div>
+                     <div><span class="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600">even i am facing</span></div>
+                  </div>
+                  
+               </div>
+            </div>
+          </div>
+          <div class="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
+            <div class="relative flex">
+               <input type="text" placeholder="Write your message!" class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-2 bg-gray-200 rounded-md py-3 text-xs">
+               <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
+                  <button type="button" class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none">
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-6 w-6 ml-2 transform rotate-90">
+                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+                     </svg>
+                  </button>
+               </div>
+            </div>
+         </div>
+
         </div>
 
         <script src="/js/dependencies/jquery-3.6.4.min.js"></script>
@@ -101,6 +207,7 @@
         <script src="/js/modules/audio-controller.js"></script>
         <script src="/js/modules/video-controller.js"></script>
         <script src="/js/modules/media-controller.js"></script>
+        <script src="/js/modules/chat-controller.js"></script>
         <script src="/js/modules/device-controller.js"></script>
         <script src="/js/app.js"></script>
     </body>
