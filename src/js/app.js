@@ -16,6 +16,7 @@
     function App() {
       this.channelId = getUrlParameter('channelId') || 'liveswitch-channel';
       this.app = ls.MediaStreamingLogic.getInstance(this.channelId);
+      this.chatController = ls.ChatController.getInstance();
       this.channels = [];
 
       this.controls = [
@@ -40,6 +41,7 @@
         mediaCtrl.showControls();
         this.hideShowControls();
       });
+      
     };
 
     App.prototype.initChat = function () {
@@ -53,6 +55,7 @@
         e.preventDefault();
         this.app.joinAsync().then((channels) => {
           this.channels = channels;
+          this.chatController.watchMessages(this.app.client, this.channels[0]);
           $('#ls-channel-information').hide();
           this.hideShowControls('joined');
         });
@@ -62,6 +65,12 @@
       });
       $('#ls-screen-share').on('click', () => {
         // this.startScreenShareAsync();
+      });
+
+      $('#send-message-button').on('click', () => {
+        const message = $('#message-input').val();
+        this.chatController.sendMessage(this.channels[0], message);
+        $('#message-input').val('');
       });
     };
 

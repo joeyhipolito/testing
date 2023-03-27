@@ -6,8 +6,8 @@ window.Liveswitch = window.Liveswitch || {};
     function MediaStreamingLogic(channelId) {
 
       //Replace the following with the values from the LiveSwitch Console
-      this.applicationId = '7b08aa13-3e83-44bd-bb99-c935d95e3a09';
-      this.sharedSecret = 'f6fd364d337d4d388ab56ea1b8d1e3adc09a0736bcf6461496b0f2a9cc8a137f';
+      this.applicationId = '155d1675-12cc-448b-b4ca-cc02021635dc';
+      this.sharedSecret = '8ef496f0bef14aa69c9b367546ce3ead4bc488c8458b463ebe739417e3f2b759';
 
       this.mainContainer = $('#ls-container');
       this.textContainer = $('#ls-text-container');
@@ -80,7 +80,7 @@ window.Liveswitch = window.Liveswitch || {};
                 // Reset re-register backoff after successful registration.
                 this.reRegisterBackoff = 200;
                 this.onClientRegistered(channels);
-                promise.resolve(null);
+                promise.resolve(channels);
               })
               .fail((ex) => {
                 fm.liveswitch.Log.error("Failed to register with Gateway.");
