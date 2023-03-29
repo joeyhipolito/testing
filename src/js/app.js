@@ -22,7 +22,7 @@
       this.controls = [
         { id: 'audio', visibility: ['always'] },
         { id: 'video', visibility: ['always'] },
-        { id: 'screen', visibility: ['joined', 'allowed'] },
+        { id: 'screen', visibility: ['joined'] },
         { id: 'leave', visibility: ['joined'] },
         { id: 'chat', visibility: ['joined'] }
       ];
@@ -37,8 +37,16 @@
 
     App.prototype.init = function () {
       this.app.startLocalMedia().then(() => {
-        const mediaCtrl = ls.MediaController.getInstance(this.app.localMedia);
-        mediaCtrl.showControls();
+        this.mediaCtrl = ls.MediaController.getInstance(this.app.localMedia, this.app.localScreenMedia, {
+          logoutCallback: () => {
+            this.app.leaveAsync().then(() => {
+              this.hideShowControls();
+              $('#ls-channel-information').show();
+              this.channels = [];
+            });
+          }
+        });
+        this.mediaCtrl.showControls();
         this.hideShowControls();
       });
       
@@ -56,15 +64,10 @@
         this.app.joinAsync().then((channels) => {
           this.channels = channels;
           this.chatController.watchMessages(this.app.client, this.channels[0]);
+          this.mediaCtrl.setChannel(this.channels[0]);
           $('#ls-channel-information').hide();
           this.hideShowControls('joined');
         });
-      });
-      $('#ls-leave').on('click', () => {
-        this.leaveAsync();
-      });
-      $('#ls-screen-share').on('click', () => {
-        // this.startScreenShareAsync();
       });
 
       $('#send-message-button').on('click', () => {

@@ -16,6 +16,7 @@ window.Liveswitch = window.Liveswitch || {};
       console.log('audio muted.');
       this.lm.setAudioMuted(!this.isMuted);
       this.isMuted = !this.isMuted;
+      return this.isMuted;
     };
     return AudioController;
   })();
