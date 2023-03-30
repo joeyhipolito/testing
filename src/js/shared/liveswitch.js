@@ -17,7 +17,7 @@ window.Liveswitch = window.Liveswitch || {};
       this.maxRegisterBackoff = 60000;
       this.unregistering = false;
       this.layoutManager = new fm.liveswitch.DomLayoutManager(this.mainContainer.get(0));
-      this.layoutManager.setMode(fm.liveswitch.LayoutMode.Inline);
+      // this.layoutManager.setMode(fm.liveswitch.LayoutMode.Inline);
       this.downstreamConnections = {};
       // Create a new local media for screen capturing.
       this.localScreenMedia = new fm.liveswitch.LocalMedia(false, true, true);
@@ -213,10 +213,14 @@ window.Liveswitch = window.Liveswitch || {};
       const remoteMedia = new fm.liveswitch.RemoteMedia();
       const audioStream = new fm.liveswitch.AudioStream(remoteMedia);
       const videoStream = new fm.liveswitch.VideoStream(remoteMedia);
+      
 
       // Add remote media to the layout.
+      if(remoteConnectionInfo.getMediaId() !== 'screen') {
+        remoteMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
+      }
+      
       this.layoutManager.addRemoteMedia(remoteMedia);
-
       // Create a SFU downstream connection with remote audio and video.
       const connection = this.channel.createSfuDownstreamConnection(
         remoteConnectionInfo,

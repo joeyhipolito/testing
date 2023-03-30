@@ -42,6 +42,15 @@
             this.app.leaveAsync().then(() => {
               this.hideShowControls();
               $('#ls-channel-information').show();
+              $('#ls-container')
+                .addClass('h-5/6 lg:w-8/12')
+                .removeClass('h-full lg:w-full')
+                .parent()
+                .addClass('h-4/6  md:basis-3/4 pt-10')
+                .removeClass('h-full md:basis-full')
+                .parent()
+                .addClass('md:mx-auto px-2 xl:container')
+                .removeClass('md:mx-0 px-0')
               this.channels = [];
             });
           }
@@ -66,6 +75,15 @@
           this.chatController.watchMessages(this.app.client, this.channels[0]);
           this.mediaCtrl.setChannel(this.channels[0]);
           $('#ls-channel-information').hide();
+          $('#ls-container')
+            .removeClass('h-5/6 lg:w-8/12')
+            .addClass('h-full lg:w-full')
+            .parent()
+            .removeClass('h-4/6  md:basis-3/4 pt-10')
+            .addClass('h-full md:basis-full')
+            .parent()
+            .removeClass('md:mx-auto px-2 xl:container')
+            .addClass('md:mx-0 px-0');
           this.hideShowControls('joined');
         });
       });
@@ -74,6 +92,14 @@
         const message = $('#message-input').val();
         this.chatController.sendMessage(this.channels[0], message);
         $('#message-input').val('');
+      });
+
+      $('#message-input').on('keypress', (e) => {
+        if (e.keyCode === 13) {
+          const message = $('#message-input').val();
+          this.chatController.sendMessage(this.channels[0], message);
+          $('#message-input').val('');
+        }
       });
     };
 

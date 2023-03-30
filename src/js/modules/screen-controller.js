@@ -16,7 +16,7 @@ window.Liveswitch = window.Liveswitch || {};
       this.lm.start().then(() => {
         const { VideoStream } = fm.liveswitch;
         const videoStream = new VideoStream(this.lm);
-        const connection = channel.createSfuUpstreamConnection(null, videoStream);
+        const connection = channel.createSfuUpstreamConnection(null, videoStream, 'screen');
         return connection.open();
       });
       

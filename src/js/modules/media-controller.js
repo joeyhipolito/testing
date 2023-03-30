@@ -28,11 +28,6 @@ window.Liveswitch = window.Liveswitch || {};
       if(this.lsContainer.find('#ls-controls').length === 0) {
         this.lsContainer.append(`
           <div id="ls-controls" class="absolute top-0 bottom-0 right-0 left-0 flex z-10 flex-col">
-            <div class="flex items-center justify-end w-full mb-4 self-start">
-              <a id="ls-menu" class="rounded-full h-12 w-12 flex items-center justify-center cursor-pointer hover:bg-white/20">
-                <i class="fa fa-ellipsis-vertical text-white"></i>
-              </a>
-            </div>
             <div class="flex flex-1 items-end justify-center mr-4 w-full mb-4 self-end">
               <a id="ls-audio" class="rounded-full border border-white h-12 w-12 flex items-center justify-center cursor-pointer hover:bg-white/20">
                 <i class="fa fa-microphone text-white"></i>
@@ -48,6 +43,10 @@ window.Liveswitch = window.Liveswitch || {};
               <a id="ls-screen" class="rounded-full border border-white h-12 w-12 flex items-center justify-center cursor-pointer ml-4 hover:bg-white/20">
                 <i class="fa fa-desktop text-white"></i>
               </a>
+
+              <a id="ls-settings" class="rounded-full border border-white h-12 w-12 flex items-center justify-center cursor-pointer ml-4 hover:bg-white/20">
+                <i class="fa fa-cog text-white"></i>
+              </a>
               <a id="ls-leave" class="rounded-full border border-red-600 bg-red-600 h-12 w-12 flex items-center justify-center cursor-pointer ml-4 hover:bg-red-500">
                 <i class="fa fa-phone text-white"></i>
               </a>
@@ -61,7 +60,7 @@ window.Liveswitch = window.Liveswitch || {};
         const chatToggleButton = this.lsContainer.find('#ls-chat');
         const screenShareButton = this.lsContainer.find('#ls-screen');
         const leaveButton = this.lsContainer.find('#ls-leave');
-        const menuButton = this.lsContainer.find('#ls-menu');
+        const settingsButton = this.lsContainer.find('#ls-settings');
 
         audioMuteButton.on('click', () => {
           const muted = this.audioCtrl.toggleMute();
@@ -110,7 +109,7 @@ window.Liveswitch = window.Liveswitch || {};
           this.logoutCallback();
         });
 
-        menuButton.on('click', () => {
+        settingsButton.on('click', () => {
           this.deviceCtrl.toggle();
         });
       }
