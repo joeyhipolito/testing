@@ -2,7 +2,7 @@ window.Liveswitch = window.Liveswitch || {};
 
 ((Liveswitch, $) => {
   const MediaController = (() => {
-    function MediaController(localMedia, screenMedia, options = {}) {
+    function MediaController(localMedia, screenMedia, options = {}, layoutManager) {
       this.lsContainer = $('#ls-container');
       this.localMedia = localMedia;
       this.audioCtrl = Liveswitch.AudioController.getInstance(localMedia);
@@ -11,11 +11,12 @@ window.Liveswitch = window.Liveswitch || {};
       this.deviceCtrl = Liveswitch.DeviceController.getInstance(localMedia);
       this.screenCtrl = Liveswitch.ScreenController.getInstance(screenMedia);
       this.logoutCallback = options.logoutCallback || (() => {});
+      this.layoutManager = layoutManager;
     }
 
-    MediaController.getInstance = function (localMedia, screenMedia, options) {
+    MediaController.getInstance = function (localMedia, screenMedia, options, layoutManager) {
       if (MediaController.instance == null) {
-        MediaController.instance = new MediaController(localMedia,screenMedia, options);
+        MediaController.instance = new MediaController(localMedia,screenMedia, options, layoutManager);
       }
       return MediaController.instance;
     };
@@ -108,9 +109,9 @@ window.Liveswitch = window.Liveswitch || {};
               screenShareButton
                 .removeClass('border-white hover:bg-white/20')
                 .addClass('border-red-600 bg-red-600 hover:bg-red-500');
-              this.lsContainer
-                .removeClass('w-full')
-                .addClass('w-1/6');
+              // this.lsContainer
+              //   .removeClass('w-full')
+              //   .addClass('w-1/6');
               container
                 .removeClass('hidden w-full')
                 .addClass('w-5/6')
@@ -119,9 +120,9 @@ window.Liveswitch = window.Liveswitch || {};
               screenShareButton
                 .removeClass('border-red-600 bg-red-600 hover:bg-red-500')
                 .addClass('border-white hover:bg-white/20');
-              this.lsContainer
-                .addClass('w-full')
-                .removeClass('w-1/6');
+              // this.lsContainer
+              //   .addClass('w-full')
+              //   .removeClass('w-1/6');
               container
                 .addClass('hidden w-full')
                 .removeClass('w-5/6')

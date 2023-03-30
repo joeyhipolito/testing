@@ -54,7 +54,7 @@
               this.channels = [];
             });
           }
-        });
+        }, this.app.layoutManager);
         this.mediaCtrl.showControls();
         this.hideShowControls();
       });
