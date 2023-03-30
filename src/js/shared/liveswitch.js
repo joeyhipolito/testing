@@ -21,6 +21,7 @@ window.Liveswitch = window.Liveswitch || {};
       this.downstreamConnections = {};
       // Create a new local media for screen capturing.
       this.localScreenMedia = new fm.liveswitch.LocalMedia(false, true, true);
+      this.localScreenMedia.setAudioMuted(true)
       // Log to console.
       fm.liveswitch.Log.registerProvider(new fm.liveswitch.ConsoleLogProvider(fm.liveswitch.LogLevel.Debug));
     }
@@ -128,9 +129,6 @@ window.Liveswitch = window.Liveswitch || {};
     };
 
     MediaStreamingLogic.localMedia = undefined;
-    MediaStreamingLogic.prototype.layoutManager = new fm.liveswitch.DomLayoutManager(
-      this.mainContainer
-    );
 
     MediaStreamingLogic.prototype.startLocalMedia = function () {
       const promise = new fm.liveswitch.Promise();

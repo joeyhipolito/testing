@@ -102,7 +102,32 @@ window.Liveswitch = window.Liveswitch || {};
           this.chatCtrl.toggle();
         });
         screenShareButton.on('click', () => {
-          this.screenCtrl.share(this.channel);
+          this.screenCtrl.toggle(this.channel, this.layoutManager, (isSharing) => {
+            const container = $('#ls-screen-sharing-container');
+            if(isSharing) {
+              screenShareButton
+                .removeClass('border-white hover:bg-white/20')
+                .addClass('border-red-600 bg-red-600 hover:bg-red-500');
+              this.lsContainer
+                .removeClass('w-full')
+                .addClass('w-1/6');
+              container
+                .removeClass('hidden w-full')
+                .addClass('w-5/6')
+              this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
+            } else {
+              screenShareButton
+                .removeClass('border-red-600 bg-red-600 hover:bg-red-500')
+                .addClass('border-white hover:bg-white/20');
+              this.lsContainer
+                .addClass('w-full')
+                .removeClass('w-1/6');
+              container
+                .addClass('hidden w-full')
+                .removeClass('w-5/6')
+
+            }
+          });
         });
 
         leaveButton.on('click', () => {
