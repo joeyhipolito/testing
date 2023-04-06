@@ -1,9 +1,104 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-html {
-  @apply h-full;
+
+@layer base {
+  html {
+    @apply h-full;
+  }
+  body {
+    @apply h-full;
+  }
 }
-body {
-  @apply h-full;
+
+#pace-parent-manager-container {
+  @apply h-full w-full relative flex justify-center items-center lg:h-2/3 lg:w-full xl:w-1/2;
 }
+
+#pace-screen-layout-manager {
+  @apply h-full w-full hidden lg:h-2/3 lg:w-2/3 lg:max-w-2xl;
+}
+
+#pace-layout-manager {
+  @apply h-full w-full items-start lg:h-2/3 lg:w-2/3 lg:max-w-2xl;
+}
+
+#pace-channel-information {
+  @apply w-full h-4/6 flex flex-col justify-center items-center lg:h-full lg:w-1/3 xl:w-1/2;
+}
+
+#pace-channel-information h1 {
+  @apply text-2xl mb-8;
+}
+
+/* #pace-join {
+  @apply w-24 bg-blue-400 text-white text-center rounded-full px-8 py-2 shadow-lg;
+} */
+
+#pace-device-container {
+  @apply px-5 shadow-lg flex flex-col transition-all absolute -left-96 top-0 bottom-0 w-96 bg-black/95 rounded-sm overflow-hidden py-4 z-20;
+}
+
+@layer components {
+  .pace-chat-container {
+    @apply px-5 shadow-lg flex flex-col justify-between transition-all absolute -right-96 top-0 bottom-0 w-96 bg-white rounded-sm overflow-hidden py-4 z-10;
+  }
+
+  .pace-chat-container--active {
+    @apply right-0;
+  }
+
+  .pace-chat-container--inactive {
+    @apply -right-96;
+  }
+
+
+  .pace-chat-container .messages {
+    @apply h-full w-full flex flex-col space-y-4 p-3 overflow-y-auto;
+  }
+
+  .pace-chat-container > div:nth-child(2) {
+    @apply border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0;
+  }
+
+  .pace-chat-container > div:nth-child(2) div {
+    @apply relative flex;
+  }
+
+  .pace-chat-container > div:nth-child(2) div input {
+    @apply w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-2 bg-gray-200 rounded-md py-3 text-xs;
+  }
+
+  .pace-chat-container > div:nth-child(2) div > div {
+    @apply absolute right-0 items-center inset-y-0 hidden sm:flex;
+  }
+
+  .pace-chat-container > div:nth-child(2) div > div button {
+    @apply inline-flex items-center justify-center transition duration-500 ease-in-out text-blue-500 hover:text-blue-400 focus:outline-none pr-3;
+  }
+
+  .pace-chat-container > div:nth-child(2) div > div button svg {
+    @apply h-6 w-6 ml-2 transform rotate-90;
+  }
+
+  .pace-controls-container {
+    @apply absolute w-full flex z-10 flex-col lg:w-2/3 lg:h-2/3 bottom-0 lg:bottom-auto lg:max-w-2xl;
+  }
+
+  .pace-controls-container__wrapper {
+    @apply  flex flex-1 items-end justify-center w-full mb-4 self-end z-10;
+  }
+
+  .pace-control {
+    @apply rounded-full border h-12 w-12 flex items-center justify-center cursor-pointer ml-4;
+  }
+
+  .pace-control--unmuted {
+    @apply border-white hover:bg-white/20;
+  }
+
+  .pace-control--muted {
+    @apply border-red-600 bg-red-600 hover:bg-red-500
+  }
+}
+

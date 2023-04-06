@@ -9,19 +9,30 @@ window.Liveswitch = window.Liveswitch || {};
       this.applicationId = '155d1675-12cc-448b-b4ca-cc02021635dc';
       this.sharedSecret = '8ef496f0bef14aa69c9b367546ce3ead4bc488c8458b463ebe739417e3f2b759';
 
-      this.mainContainer = $('#ls-container');
-      this.textContainer = $('#ls-text-container');
+      this.streamingContainer = $('#pace-layout-manager');
+      this.screenSharingContainer = $('#pace-screen-layout-manager');
+
+      this.textContainer = $('#pace-text-container');
+
       this.channelId = channelId || 'liveswitch-channel';
       this.gatewayUrl = 'https://cloud.liveswitch.io/';
       this.reRegisterBackoff = 200;
       this.maxRegisterBackoff = 60000;
       this.unregistering = false;
-      this.layoutManager = new fm.liveswitch.DomLayoutManager(this.mainContainer.get(0));
+
+      this.layoutManager = new fm.liveswitch.DomLayoutManager(this.streamingContainer.get(0));
+      this.screenLayoutManager = new fm.liveswitch.DomLayoutManager(this.screenSharingContainer.get(0)); 
       // this.layoutManager.setMode(fm.liveswitch.LayoutMode.Inline);
       this.downstreamConnections = {};
+
+      this.localMedia = null;
+
       // Create a new local media for screen capturing.
       this.localScreenMedia = new fm.liveswitch.LocalMedia(false, true, true);
-      this.localScreenMedia.setAudioMuted(true)
+      this.localScreenMedia.setAudioMuted(true);
+
+      this.remoteMedia = [];
+      this.remoteScreenMedia = [];
       // Log to console.
       fm.liveswitch.Log.registerProvider(new fm.liveswitch.ConsoleLogProvider(fm.liveswitch.LogLevel.Debug));
     }
@@ -111,7 +122,12 @@ window.Liveswitch = window.Liveswitch || {};
       this.unregistering = true;
       return this.client
         .unregister()
-        .then(() => {})
+        .then(() => {
+          for (const i in this.remoteMedia) {
+            this.layoutManager.removeRemoteMedia(this.remoteMedia[i]);
+          }
+          this.remoteMedia = [];
+        })
         .fail(() => fm.liveswitch.Log.error("Unregistration failed."));
     };
 
@@ -212,13 +228,34 @@ window.Liveswitch = window.Liveswitch || {};
       const audioStream = new fm.liveswitch.AudioStream(remoteMedia);
       const videoStream = new fm.liveswitch.VideoStream(remoteMedia);
       
-
       // Add remote media to the layout.
-      if(remoteConnectionInfo.getMediaId() !== 'screen') {
-        remoteMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
+      // if(remoteConnectionInfo.getMediaId() !== 'screen') {
+      //   remoteMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
+      // }
+      remoteMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
+      
+      if(remoteConnectionInfo.getMediaId() === 'screen') {
+        this.layoutManager.setMode(fm.liveswitch.LayoutMode.Inline);
+
+        const container = $('#pace-screen-layout-manager');
+        const mainContainer = $('#pace-layout-manager');
+
+        const screenNotSharingClass = 'hidden w-full';
+        const screenSharingClass = 'w-5/6';
+
+        container
+          .removeClass(screenNotSharingClass)
+          .addClass(screenSharingClass);
+
+        mainContainer
+          .addClass('w-1/5')
+          .removeClass('w-full');
+        this.screenLayoutManager.addRemoteMedia(remoteMedia);
+
+      } else {
+        this.layoutManager.addRemoteMedia(remoteMedia);
       }
       
-      this.layoutManager.addRemoteMedia(remoteMedia);
       // Create a SFU downstream connection with remote audio and video.
       const connection = this.channel.createSfuDownstreamConnection(
         remoteConnectionInfo,
@@ -243,6 +280,8 @@ window.Liveswitch = window.Liveswitch || {};
           remoteMedia.destroy();
         }
       });
+
+      this.remoteMedia.push(remoteMedia);
 
       connection.open();
       return connection;

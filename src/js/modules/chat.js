@@ -1,0 +1,61 @@
+window.Liveswitch = window.Liveswitch || {};
+
+((Liveswitch, $) => {
+  const ChatFactory = (() => {
+    function ChatFactory() {
+      this.messages = [];
+      this.hidden = true;
+      this.messagesContainer = $('#messages');
+    }
+    ChatFactory.getInstance = function (client) {
+      if (ChatFactory.instance == null) {
+        ChatFactory.instance = new ChatFactory();
+        this.client = client;
+      }
+      return ChatFactory.instance;
+    };
+
+    ChatFactory.prototype.setChannel = function (channel) {
+      this.channel = channel;
+    };
+
+    ChatFactory.prototype.toggle = function () {
+      const lsChatContainer = $('.pace-chat-container');
+      lsChatContainer
+        .removeClass(this.hidden ?  'pace-chat-container--inactive' : 'pace-chat-container--active')
+        .addClass(this.hidden ? 'pace-chat-container--active' : 'pace-chat-container--inactive');
+      this.hidden = !this.hidden;
+    };
+    ChatFactory.prototype.sendMessage = function (channel, message) {
+      this.messages.push(message);
+      this.createMessage(message, true);
+      channel.sendMessage(message);
+    };
+    ChatFactory.prototype.receiveMessage = function (message) {
+      this.messages.push(message);
+      this.createMessage(message, false);
+    };
+    ChatFactory.prototype.watchMessages = function (client, channel) {
+      channel.addOnMessage((remoteClient, message) => {
+        if(remoteClient.getUserId() === client.getUserId()) return;
+        const name = remoteClient.getUserAlias() != null ? remoteClient.getUserAlias() : remoteClient.getUserId();
+        this.receiveMessage(`${name}: ${message}`);
+      });
+    };
+    ChatFactory.prototype.createMessage = function (message, own) {
+      const containerClasses = own ? ' order-1 items-end' : ' order-2 items-start';
+      const messageClasses = own ? ' rounded-br-none bg-blue-600 text-white' : ' rounded-bl-none bg-gray-300 text-gray-600';
+      this.messagesContainer.append(`
+        <div class="chat-message">
+            <div class="flex items-end ${own ? 'justify-end': ''}">
+              <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 ${containerClasses}">
+                  <div><span class="px-4 py-2 rounded-lg inline-block  ${messageClasses}">${message}</span></div>
+              </div>
+            </div>
+        </div>
+      `);
+    };
+    return ChatFactory;
+  })();
+  Liveswitch.ChatFactory = ChatFactory;
+})(Liveswitch, $);

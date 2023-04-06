@@ -1,9 +1,12 @@
 <!doctype html>
 <html>
     <head>
+        <link href="/default-main.css" rel="stylesheet" />
         <link rel="stylesheet" href="/dist/output.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
         <script src="https://kit.fontawesome.com/0f5e35312b.js" crossorigin="anonymous"></script>
+        <script src="/js/dependencies/jquery-3.6.4.min.js"></script>
+        <script src="/js/dependencies/kendo.all.min.js"></script>
         <style>
           .dropdown:focus-within .dropdown-menu {
             opacity:1;
@@ -13,45 +16,55 @@
         </style>
     </head>
     <body class="relative overflow-hidden w-full">
-        <div id="ls-parent" class="flex xl:container md:mx-auto px-2 h-screen items-center w-full flex-col md:flex-row">
-          <div class="w-full md:basis-3/4 h-4/6 flex flex-col justify-center items-center pt-10 bg-gray-100">
-            <div id="ls-container" class="h-5/6 rounded-xl overflow-hidden lg:w-8/12 w-full flex items-center justify-center relative"></div>
-          </div>
-          <div id="ls-channel-information" class="w-full md:basis-1/4 h-4/6 flex flex-col justify-center items-center bg-gray-200">
-            <h1 class="text-2xl mb-8">Ready to join?</h1>
-            <a id="ls-join" href="" class="w-24 bg-blue-400 text-white text-center rounded-full px-8 py-2 shadow-lg">Join</a>
-          </div>
-          
+      <div class="
+        flex h-full w-full flex-col justify-center items-center
+        lg:flex-row
+      ">
+        <div id="pace-parent-manager-container">
+          <div id="pace-screen-layout-manager"></div>
+          <div id="pace-layout-manager"></div>
         </div>
-        <div id="ls-device-container" class="px-5 shadow-lg flex flex-col transition-all absolute -left-96 top-0 bottom-0 w-96 bg-black/95 rounded-sm overflow-hidden py-4 z-20"></div>
+        <div id="pace-channel-information">
+          <h1>Ready to join?</h1>
+          <button id="pace-join">Join</button>
+        </div>
+      </div>
 
-        <div id="ls-chat-container" class="px-5 shadow-lg flex flex-col justify-between transition-all absolute -right-96 top-0 bottom-0 w-96 bg-white rounded-sm overflow-hidden py-4 z-10">
-
-          <div id="messages" class="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"></div>
-          <div class="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
-            <div class="relative flex">
-               <input id="message-input" type="text" placeholder="Write your message!" class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-2 bg-gray-200 rounded-md py-3 text-xs">
-               <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
-                  <button id="send-message-button" type="button" class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none">
-                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-6 w-6 ml-2 transform rotate-90">
-                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
-                     </svg>
-                  </button>
-               </div>
-            </div>
-         </div>
-
+      <div id="pace-device-container"></div>
+      <div class="pace-chat-container">
+        <div class="messages"></div>
+        <div>
+          <div>
+              <input id="message-input" type="text" placeholder="Write your message!">
+              <div>
+                <button id="send-message-button" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+                    </svg>
+                </button>
+              </div>
+          </div>
         </div>
 
-        <script src="/js/dependencies/jquery-3.6.4.min.js"></script>
-        <script src="/js/dependencies/fm.liveswitch.js"></script>
-        <script src="/js/shared/liveswitch.js"></script>
-        <script src="/js/modules/audio-controller.js"></script>
-        <script src="/js/modules/video-controller.js"></script>
-        <script src="/js/modules/media-controller.js"></script>
-        <script src="/js/modules/chat-controller.js"></script>
-        <script src="/js/modules/screen-controller.js"></script>
-        <script src="/js/modules/device-controller.js"></script>
-        <script src="/js/app.js"></script>
+      </div>
+
+      
+      <script src="/js/dependencies/fm.liveswitch.js"></script>
+      <script src="/js/shared/liveswitch.js"></script>
+      <script src="/js/modules/audio.js"></script>
+      <script src="/js/modules/video.js"></script>
+      <script src="/js/modules/controls.js"></script>
+      <script src="/js/modules/chat.js"></script>
+      <script src="/js/modules/screen.js"></script>
+      <script src="/js/modules/device.js"></script>
+      <script src="/js/modules/auth.js"></script>
+      <script src="/js/app.js"></script>
+      <script>
+        $(document).ready(function () {
+            $("#pace-join").kendoButton({
+                themeColor: "primary"
+            });
+        });
+      </script>
     </body>
 </html>

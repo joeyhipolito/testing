@@ -16,10 +16,12 @@
     function App() {
       this.channelId = getUrlParameter('channelId') || 'liveswitch-channel';
       this.app = ls.MediaStreamingLogic.getInstance(this.channelId);
-      this.chatController = ls.ChatController.getInstance();
+      this.chat = ls.ChatFactory.getInstance();
       this.channels = [];
+      this.controls = null;
+      this.auth = ls.AuthFactory.getInstance();
 
-      this.controls = [
+      this.controlsPermission = [
         { id: 'audio', visibility: ['always'] },
         { id: 'video', visibility: ['always'] },
         { id: 'screen', visibility: ['joined'] },
@@ -37,80 +39,115 @@
 
     App.prototype.init = function () {
       this.app.startLocalMedia().then(() => {
-        this.mediaCtrl = ls.MediaController.getInstance(this.app.localMedia, this.app.localScreenMedia, {
-          logoutCallback: () => {
-            this.app.leaveAsync().then(() => {
-              this.hideShowControls();
-              $('#ls-channel-information').show();
-              $('#ls-container')
-                .addClass('h-5/6 lg:w-8/12')
-                .removeClass('h-full lg:w-full')
-                .parent()
-                .addClass('h-4/6  md:basis-3/4 pt-10')
-                .removeClass('h-full md:basis-full')
-                .parent()
-                .addClass('md:mx-auto px-2 xl:container')
-                .removeClass('md:mx-0 px-0')
-              this.channels = [];
-            });
-          }
-        }, this.app.layoutManager);
-        this.mediaCtrl.showControls();
+        const { localMedia, layoutManager, localScreenMedia, screenLayoutManager } = this.app;
+        this.controls = ls.Controls.getInstance({
+          localMedia,
+          layoutManager,
+          screenMedia: localScreenMedia,
+          screenLayoutManager
+        });
+
+        this.controls.setAuth(this.auth);
+        this.controls.render();
         this.hideShowControls();
       });
-      
     };
-
-    App.prototype.initChat = function () {
-
-    };
-
 
     App.prototype.bindEvents = function () {
       // Bind events.
-      $('#ls-join').on('click', (e) => {
+      $('#pace-join').on('click', (e) => {
         e.preventDefault();
         this.app.joinAsync().then((channels) => {
+          this.app.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
+          this.updateContainerUIs(true);
+          // const joinedClass = '';
+          // const notJoinedClass = 'lg:h-2/3 lg:w-2/3 lg:max-w-2xl';
+          // $('body').addClass('bg-gray-900')
+          // $('#pace-parent-manager-container')
+          //   .removeClass('lg:h-2/3 xl:w-1/2')
+          //   .addClass('lg:p-4 lg:pb-24')
+          // $('#pace-channel-information').hide();
+          // $('#pace-layout-manager')
+          //   .removeClass(notJoinedClass)
+          //   .addClass();
+          // $('#pace-screen-layout-manager')
+          //   .removeClass(notJoinedClass)
+          //   .addClass();
+          // $('#pace-controls-container')
+          //   .removeClass(notJoinedClass + ' lg:bottom-auto')
+          //   .addClass('lg:bottom-0');
+          
           this.channels = channels;
-          this.chatController.watchMessages(this.app.client, this.channels[0]);
-          this.mediaCtrl.setChannel(this.channels[0]);
-          $('#ls-channel-information').hide();
-          $('#ls-container')
-            .removeClass('h-5/6 lg:w-8/12')
-            .addClass('h-full lg:w-full')
-            .parent()
-            .removeClass('h-4/6  md:basis-3/4 pt-10')
-            .addClass('h-full md:basis-full')
-            .parent()
-            .removeClass('md:mx-auto px-2 xl:container')
-            .addClass('md:mx-0 px-0');
+          this.controls.setChannel(channels[0]);
+          this.chat.setChannel(channels[0]);
+          this.chat.watchMessages(this.app.client, this.channels[0]);
+
           this.hideShowControls('joined');
         });
       });
 
       $('#send-message-button').on('click', () => {
         const message = $('#message-input').val();
-        this.chatController.sendMessage(this.channels[0], message);
+        this.chat.sendMessage(this.channels[0], message);
         $('#message-input').val('');
       });
 
       $('#message-input').on('keypress', (e) => {
         if (e.keyCode === 13) {
           const message = $('#message-input').val();
-          this.chatController.sendMessage(this.channels[0], message);
+          this.chat.sendMessage(this.channels[0], message);
           $('#message-input').val('');
         }
       });
     };
 
     App.prototype.hideShowControls = function (visibility) {
-      this.controls.forEach((control) => {
+      this.controlsPermission.forEach((control) => {
         if (control.visibility.includes(visibility) || control.visibility.includes('always')) {
-          $(`#ls-${control.id}`).show();
+          $(`#pace-${control.id}`).show();
         } else {
-          $(`#ls-${control.id}`).hide();
+          $(`#pace-${control.id}`).hide();
         }
       });
+    };
+
+    App.prototype.updateContainerUIs = function (isAuthenticated) {
+      const body = $('body');
+      const parentContainer = $('#pace-parent-manager-container');
+      const layoutManager = $('#pace-layout-manager');
+      const screenLayoutManager = $('#pace-screen-layout-manager');
+      const controlsContainer = $('#pace-controls-container');
+
+      const authenticatedClassBody = 'bg-gray-900';
+      const notAuthenticatedClassBody = 'bg-white';
+      body
+        .removeClass(isAuthenticated ? notAuthenticatedClassBody : authenticatedClassBody)
+        .addClass(isAuthenticated ? authenticatedClassBody : notAuthenticatedClassBody);
+
+      const authenticatedClassParent = '';
+      const notAuthenticatedClassParent = '';
+      parentContainer
+        .removeClass(isAuthenticated ? notAuthenticatedClassParent : authenticatedClassParent)
+        .addClass(isAuthenticated ? authenticatedClassParent : notAuthenticatedClassParent);
+
+      const authenticatedClassLayoutManager = '';
+      const notAuthenticatedClassLayoutManager = '';
+      layoutManager
+        .removeClass(isAuthenticated ? notAuthenticatedClassLayoutManager : authenticatedClassLayoutManager)
+        .addClass(isAuthenticated ? authenticatedClassLayoutManager : notAuthenticatedClassLayoutManager);
+
+      const authenticatedClassScreenLayoutManager = '';
+      const notAuthenticatedClassScreenLayoutManager = '';
+      screenLayoutManager
+        .removeClass(isAuthenticated ? notAuthenticatedClassScreenLayoutManager : authenticatedClassScreenLayoutManager)
+        .addClass(isAuthenticated ? authenticatedClassScreenLayoutManager : notAuthenticatedClassScreenLayoutManager);
+
+      const authenticatedClassControls = '';
+      const notAuthenticatedClassControls = '';
+      controlsContainer
+        .removeClass(isAuthenticated ? notAuthenticatedClassControls : authenticatedClassControls)
+        .addClass(isAuthenticated ? authenticatedClassControls : notAuthenticatedClassControls);
+
     };
 
 
