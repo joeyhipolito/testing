@@ -235,21 +235,15 @@ window.Liveswitch = window.Liveswitch || {};
       remoteMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
       
       if(remoteConnectionInfo.getMediaId() === 'screen') {
-        this.layoutManager.setMode(fm.liveswitch.LayoutMode.Inline);
-
         const container = $('#pace-screen-layout-manager');
-        const mainContainer = $('#pace-layout-manager');
+        const parent = $('#pace-parent-manager-container');
 
-        const screenNotSharingClass = 'hidden w-full';
-        const screenSharingClass = 'w-5/6';
 
-        container
-          .removeClass(screenNotSharingClass)
-          .addClass(screenSharingClass);
+        parent.addClass('screen-sharing');
+        container.removeClass('d-none');
 
-        mainContainer
-          .addClass('w-1/5')
-          .removeClass('w-full');
+        this.layoutManager.setMode(fm.liveswitch.LayoutMode.Inline);
+        this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
         this.screenLayoutManager.addRemoteMedia(remoteMedia);
 
       } else {
@@ -278,6 +272,18 @@ window.Liveswitch = window.Liveswitch || {};
           delete this.downstreamConnections[connection.getId()];
           this.layoutManager.removeRemoteMedia(remoteMedia);
           remoteMedia.destroy();
+          
+          if(remoteConnectionInfo.getMediaId() === 'screen') {
+            const container = $('#pace-screen-layout-manager');
+            const parent = $('#pace-parent-manager-container');
+
+            parent.removeClass('screen-sharing');
+            container.addClass('d-none');
+
+            this.layoutManager.setMode(fm.liveswitch.LayoutMode.FloatLocal);
+            this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
+            this.screenLayoutManager.removeRemoteMedia(remoteMedia);
+          }
         }
       });
 

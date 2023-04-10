@@ -5,7 +5,7 @@ window.Liveswitch = window.Liveswitch || {};
     function ChatFactory() {
       this.messages = [];
       this.hidden = true;
-      this.messagesContainer = $('#messages');
+      this.messagesContainer = $('.messages').first();
     }
     ChatFactory.getInstance = function (client) {
       if (ChatFactory.instance == null) {
@@ -37,6 +37,7 @@ window.Liveswitch = window.Liveswitch || {};
     };
     ChatFactory.prototype.watchMessages = function (client, channel) {
       channel.addOnMessage((remoteClient, message) => {
+        debugger;
         if(remoteClient.getUserId() === client.getUserId()) return;
         const name = remoteClient.getUserAlias() != null ? remoteClient.getUserAlias() : remoteClient.getUserId();
         this.receiveMessage(`${name}: ${message}`);
@@ -47,9 +48,9 @@ window.Liveswitch = window.Liveswitch || {};
       const messageClasses = own ? ' rounded-br-none bg-blue-600 text-white' : ' rounded-bl-none bg-gray-300 text-gray-600';
       this.messagesContainer.append(`
         <div class="chat-message">
-            <div class="flex items-end ${own ? 'justify-end': ''}">
-              <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 ${containerClasses}">
-                  <div><span class="px-4 py-2 rounded-lg inline-block  ${messageClasses}">${message}</span></div>
+            <div class="chat-message__wrapper ${own ? 'own': 'other'}">
+              <div class="chat-message__bubble ${own ? 'own': 'other'}">
+                  <span class="chat-message__content">${message}</span>
               </div>
             </div>
         </div>

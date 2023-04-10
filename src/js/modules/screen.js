@@ -30,7 +30,8 @@ window.Liveswitch = window.Liveswitch || {};
       this.localMedia.start().then(() => {
         const { VideoStream } = fm.liveswitch;
         const videoStream = new VideoStream(this.localMedia);
-        this.screenSharingConnection = channel.createSfuUpstreamConnection(null, videoStream, 'screen');
+        this.screenSharingConnection = channel.createSfuUpstreamConnection(null, videoStream);
+        this.screenSharingConnection.setMediaId('screen');
         this.localMedia.getVideoTracks().forEach((track) => {
           track.addOnStopped(() => {
             this.stop(channel, layoutManager, callback);

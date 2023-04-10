@@ -45,7 +45,7 @@ window.Liveswitch = window.Liveswitch || {};
 
     Controls.prototype.render = function () {
       this.parentContainer.append(`
-      <div class="pace-controls-container">
+      <div class="pace-controls-container position-absolute h-100 w-100">
         <div class="pace-controls-container__wrapper">
           <a id="pace-audio" class="pace-control pace-control--unmuted">
             <i class="fa fa-microphone text-white"></i>
@@ -65,11 +65,10 @@ window.Liveswitch = window.Liveswitch || {};
           <a id="pace-settings" class="pace-control pace-control--unmuted">
             <i class="fa fa-cog text-white"></i>
           </a>
-          <a id="pace-leave" class="rounded-full border border-red-600 bg-red-600 h-12 w-12 flex items-center justify-center cursor-pointer ml-4 hover:bg-red-500">
+          <a id="pace-leave" class="pace-control pace-control--muted">
             <i class="fa fa-phone text-white"></i>
           </a>
         </div>
-        <div class="absolute opacity-20 z-0 bottom-0 w-full h-24 left-0 right-0 bg-gradient-to-b from-transparent via-gray-500 to-black"></div>
       </div>
       `);
 
@@ -81,8 +80,8 @@ window.Liveswitch = window.Liveswitch || {};
       const leaveButton = this.parentContainer.find('#pace-leave');
 
 
-      const mutedClass = 'border-red-600 bg-red-600 hover:bg-red-500';
-      const unmutedClass = 'border-white hover:bg-white/20';
+      const mutedClass = 'pace-control--muted';
+      const unmutedClass = 'pace-control--unmuted';
 
       microphoneButton.on('click', () => {
         const muted = this.audio.toggle();
@@ -108,32 +107,27 @@ window.Liveswitch = window.Liveswitch || {};
       });
 
       screenButton.on('click', () => {
-        const screenNotSharingClass = 'hidden w-full';
-        const screenSharingClass = 'w-5/6';
-
-        const layoutManagerSharingClass = '';
-        const layoutManagerNotSharingClass = '';
-
 
         this.screenSharing.toggle(this.channel, this.screenLayoutManager, (isSharing) => {
           const container = $('#pace-screen-layout-manager');
-          const mainContainer = $('#pace-layout-manager');
+          const parent = $('#pace-parent-manager-container');
 
           screenButton
             .removeClass(!isSharing ? mutedClass : unmutedClass)
             .addClass(!isSharing ? unmutedClass : mutedClass);
 
+          if(isSharing) {
+            parent.addClass('screen-sharing');
+            container.removeClass('d-none');
+            this.layoutManager.setMode(fm.liveswitch.LayoutMode.Inline);
+            this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
+          } else {
+            parent.removeClass('screen-sharing');
+            container.addClass('d-none');
+            this.layoutManager.setMode(fm.liveswitch.LayoutMode.FloatLocal);
+            this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
+          }
           
-          container
-            .removeClass(isSharing ? screenNotSharingClass : screenSharingClass)
-            .addClass(isSharing ? screenSharingClass : screenNotSharingClass);
-
-          mainContainer
-          .addClass('w-1/5')
-          .removeClass('w-full');
-
-          this.layoutManager.setMode(isSharing ? fm.liveswitch.LayoutMode.Inline : fm.liveswitch.LayoutMode.FloatLocal);
-          this.localMedia.getViewSink().setViewScale(isSharing ? fm.liveswitch.LayoutScale.Cover : fm.liveswitch.LayoutScale.Contain);
         });
       });
       
@@ -144,7 +138,9 @@ window.Liveswitch = window.Liveswitch || {};
         this.device.toggle();
       });
       leaveButton.on('click', () => {
-        this.auth.leave();
+        this.auth.leave(() => {
+          
+        });
       });
     };
 

@@ -19,7 +19,12 @@
       this.chat = ls.ChatFactory.getInstance();
       this.channels = [];
       this.controls = null;
-      this.auth = ls.AuthFactory.getInstance();
+      this.auth = ls.AuthFactory.getInstance(this.app.leaveAsync.bind(this.app));
+      this.auth.setLeaveCallback(() => {
+        this.updateContainerUIs();
+        this.channels = [];
+        this.hideShowControls('always');
+      })
 
       this.controlsPermission = [
         { id: 'audio', visibility: ['always'] },
@@ -58,25 +63,8 @@
       $('#pace-join').on('click', (e) => {
         e.preventDefault();
         this.app.joinAsync().then((channels) => {
-          this.app.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
+          // this.app.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
           this.updateContainerUIs(true);
-          // const joinedClass = '';
-          // const notJoinedClass = 'lg:h-2/3 lg:w-2/3 lg:max-w-2xl';
-          // $('body').addClass('bg-gray-900')
-          // $('#pace-parent-manager-container')
-          //   .removeClass('lg:h-2/3 xl:w-1/2')
-          //   .addClass('lg:p-4 lg:pb-24')
-          // $('#pace-channel-information').hide();
-          // $('#pace-layout-manager')
-          //   .removeClass(notJoinedClass)
-          //   .addClass();
-          // $('#pace-screen-layout-manager')
-          //   .removeClass(notJoinedClass)
-          //   .addClass();
-          // $('#pace-controls-container')
-          //   .removeClass(notJoinedClass + ' lg:bottom-auto')
-          //   .addClass('lg:bottom-0');
-          
           this.channels = channels;
           this.controls.setChannel(channels[0]);
           this.chat.setChannel(channels[0]);
@@ -117,6 +105,13 @@
       const layoutManager = $('#pace-layout-manager');
       const screenLayoutManager = $('#pace-screen-layout-manager');
       const controlsContainer = $('#pace-controls-container');
+      const infoContainer = $('#pace-channel-information');
+
+      if(isAuthenticated)  {
+        infoContainer.hide();
+      } else {
+        infoContainer.show();
+      }
 
       const authenticatedClassBody = 'bg-gray-900';
       const notAuthenticatedClassBody = 'bg-white';
@@ -124,7 +119,7 @@
         .removeClass(isAuthenticated ? notAuthenticatedClassBody : authenticatedClassBody)
         .addClass(isAuthenticated ? authenticatedClassBody : notAuthenticatedClassBody);
 
-      const authenticatedClassParent = '';
+      const authenticatedClassParent = 'pace-layout-managers__container--connected';
       const notAuthenticatedClassParent = '';
       parentContainer
         .removeClass(isAuthenticated ? notAuthenticatedClassParent : authenticatedClassParent)
