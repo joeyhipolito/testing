@@ -42,71 +42,122 @@ window.Liveswitch = window.Liveswitch || {};
       }
       return MediaStreamingLogic.instance;
     };
-    MediaStreamingLogic.prototype.joinAsync = function () {
-      const promise = new fm.liveswitch.Promise();
 
-      // Create a client.
-      this.client = new fm.liveswitch.Client(this.gatewayUrl, this.applicationId);
-
-      // Generate a token (do this on the server to avoid exposing your shared secret).
-      const token = fm.liveswitch.Token.generateClientRegisterToken(
+    MediaStreamingLogic.prototype.getToken = function(channelClaims) {
+      return fm.liveswitch.Token.generateClientRegisterToken(
         this.applicationId,
         this.client.getUserId(),
         this.client.getDeviceId(),
         this.client.getId(),
         null,
-        [new fm.liveswitch.ChannelClaim(this.channelId)],
+        channelClaims,
         this.sharedSecret
       );
+    };
 
+    MediaStreamingLogic.prototype.getClient = function () {
       // Allow re-register.
       this.unregistering = false;
-
-      this.client.addOnStateChange(() => {
-        // Write registration state to log.
-        fm.liveswitch.Log.debug(
-          `Client is ${new fm.liveswitch.ClientStateWrapper(
-            this.client.getState()
-          )}.`
-        );
-
-        if (
-          this.client.getState() === fm.liveswitch.ClientState.Unregistered &&
-          !this.unregistering
-        ) {
+      if (!this.client) {
+        this.client = new fm.liveswitch.Client(this.gatewayUrl, this.applicationId);
+        this.client.addOnStateChange(() => {
+          // Write registration state to log.
           fm.liveswitch.Log.debug(
-            `Registering with backoff = ${this.reRegisterBackoff}.`
+            `Client is ${new fm.liveswitch.ClientStateWrapper(
+              this.client.getState()
+            )}.`
           );
+  
+          if (
+            this.client.getState() === fm.liveswitch.ClientState.Unregistered &&
+            !this.unregistering
+          ) {
+            fm.liveswitch.Log.debug(
+              `Registering with backoff = ${this.reRegisterBackoff}.`
+            );
+  
+            // Re-register after a backoff.
+            setTimeout(() => {
+              // Incrementally increase register backoff to prevent runaway process.
+              if (this.reRegisterBackoff <= this.maxRegisterBackoff) {
+                this.reRegisterBackoff += this.reRegisterBackoff;
+              }
+  
+              // Register client with token.
+              this.client
+                .register(token)
+                .then((channels) => {
+                  // Reset re-register backoff after successful registration.
+                  this.reRegisterBackoff = 200;
+                  this.onClientRegistered(channels);
+                  promise.resolve(channels);
+                })
+                .fail((ex) => {
+                  fm.liveswitch.Log.error("Failed to register with Gateway.");
+                  promise.reject(ex);
+                });
+            }, this.reRegisterBackoff);
+          }
+        });
+      }
+      return this.client;
+    };
 
-          // Re-register after a backoff.
-          setTimeout(() => {
-            // Incrementally increase register backoff to prevent runaway process.
-            if (this.reRegisterBackoff <= this.maxRegisterBackoff) {
-              this.reRegisterBackoff += this.reRegisterBackoff;
-            }
+    MediaStreamingLogic.prototype.joinCmdAsync = function () {
+      const promise = new fm.liveswitch.Promise();
+      client = this.getClient();
 
-            // Register client with token.
-            this.client
-              .register(token)
-              .then((channels) => {
-                // Reset re-register backoff after successful registration.
-                this.reRegisterBackoff = 200;
-                this.onClientRegistered(channels);
-                promise.resolve(channels);
-              })
-              .fail((ex) => {
-                fm.liveswitch.Log.error("Failed to register with Gateway.");
-                promise.reject(ex);
-              });
-          }, this.reRegisterBackoff);
-        }
-      });
+      // Generate a token (do this on the server to avoid exposing your shared secret).
+      const token = this.getToken([new fm.liveswitch.ChannelClaim(this.channelId + '_cmd')]);
 
       // Register client with token.
-      this.client
+      client
         .register(token)
         .then((channels) => {
           this.onClientRegistered(channels);
+          promise.resolve(channels);
+        })
+        .fail((ex) => {
+          fm.liveswitch.Log.error("Failed to register with Gateway.");
+          promise.reject(ex);
+        });
+
+      return promise;
+    };
+
+    MediaStreamingLogic.prototype.joinChannel = function() {
+      const promise = new fm.liveswitch.Promise();
+      const token = this.getToken([new fm.liveswitch.ChannelClaim(this.channelId)]);
+      this.client.join(this.channelId, token)
+        .then((channel) => {
+          this.channel = channel;
+          // Open a new SFU upstream connection.
+          this.upstreamConnection = this.openSfuUpstreamConnection(this.localMedia);
+
+          // Open a new SFU downstream connection when a remote upstream connection is opened.
+          this.channel.addOnRemoteUpstreamConnectionOpen((remoteConnectionInfo) =>
+            this.openSfuDownstreamConnection(remoteConnectionInfo)
+          );
+          promise.resolve(channel);
+        });
+
+      return promise;
+
+    };
+
+    MediaStreamingLogic.prototype.joinAsync = function () {
+      const promise = new fm.liveswitch.Promise();
+      client = this.getClient()
+
+      // Generate a token (do this on the server to avoid exposing your shared secret).
+      const token = this.getToken([new fm.liveswitch.ChannelClaim(this.channelId), new fm.liveswitch.ChannelClaim(this.channelId + '_cmd')]);
+
+
+      // Register client with token.
+      client
+        .register(token)
+        .then((channels) => {
+          this.onHostClientRegistered(channels);
           promise.resolve(channels);
         })
         .fail((ex) => {
@@ -140,7 +191,21 @@ window.Liveswitch = window.Liveswitch || {};
 
     MediaStreamingLogic.prototype.onClientRegistered = function (channels) {
       // Store our channel reference.
+
+      this.cmdChannel = channels[0];
+
+      // Open a new SFU upstream connection.
+      // this.upstreamConnection = this.openSfuUpstreamConnection(this.localMedia);
+
+      // // Open a new SFU downstream connection when a remote upstream connection is opened.
+      // this.channel.addOnRemoteUpstreamConnectionOpen((remoteConnectionInfo) =>
+      //   this.openSfuDownstreamConnection(remoteConnectionInfo)
+      // );
+    };
+
+    MediaStreamingLogic.prototype.onHostClientRegistered = function (channels) {
       this.channel = channels[0];
+      this.cmdChannel = channels[1];
 
       // Open a new SFU upstream connection.
       this.upstreamConnection = this.openSfuUpstreamConnection(this.localMedia);
@@ -149,6 +214,7 @@ window.Liveswitch = window.Liveswitch || {};
       this.channel.addOnRemoteUpstreamConnectionOpen((remoteConnectionInfo) =>
         this.openSfuDownstreamConnection(remoteConnectionInfo)
       );
+
     };
 
     MediaStreamingLogic.localMedia = undefined;
@@ -301,6 +367,11 @@ window.Liveswitch = window.Liveswitch || {};
       connection.open();
       return connection;
     };
+
+    MediaStreamingLogic.prototype.openCmdSfuDownstreamConnection = function (remoteConnectionInfo) {
+    };
+
+    
     MediaStreamingLogic.downstreamConnections = {};
     MediaStreamingLogic.prototype.resetLayoutScale = function () {
       if(

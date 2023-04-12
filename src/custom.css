@@ -170,6 +170,21 @@
   color: #fff;
 }
 
+.pace-channel-waiting {
+  background: #fff;
+  position: relative;
+  left: unset;
+  top: unset;
+  transform: unset;
+  height: unset;
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #111;
+}
+
 .pace-chat-container {
   position: absolute;
   right: -24rem;

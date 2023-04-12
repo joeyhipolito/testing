@@ -12,6 +12,11 @@
     }
   };
 
+    const isHost = () => {
+      const host = getUrlParameter('host');
+      return host === 'true' || host === '1';
+    };
+
   const App = (() => {
     function App() {
       this.channelId = getUrlParameter('channelId') || 'liveswitch-channel';
@@ -20,6 +25,7 @@
       this.channels = [];
       this.controls = null;
       this.auth = ls.AuthFactory.getInstance(this.app.leaveAsync.bind(this.app));
+      this.cmd = ls.CmdFactory.getInstance(this.app.client);
       this.auth.setLeaveCallback(() => {
         this.updateContainerUIs();
         this.channels = [];
@@ -62,16 +68,43 @@
       // Bind events.
       $('#pace-join').on('click', (e) => {
         e.preventDefault();
-        this.app.joinAsync().then((channels) => {
-          // this.app.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
-          this.updateContainerUIs(true);
-          this.channels = channels;
-          this.controls.setChannel(channels[0]);
-          this.chat.setChannel(channels[0]);
-          this.chat.watchMessages(this.app.client, this.channels[0]);
+        const host = isHost();
+        if(host) {
+            this.app.joinAsync().then((channels) => {
+              this.updateContainerUIs(true);
+              this.channels = channels;
+              this.controls.setChannel(channels[0]);
+              this.chat.setChannel(channels[0]);
+              this.chat.watchMessages(this.app.client, this.channels[0]);
+              this.cmd.watchRequests('join', channels[1], this.app.client);
+              this.hideShowControls('joined');
+            });
+        } else {
+          this.app.joinCmdAsync().then((channels) => {
+            $('.pace-channel-information').hide();
+            $('.pace-channel-waiting')
+              .removeClass('d-none')
+              .find('span').kendoLoader({
+                size: 'medium'
+              }).data("kendoLoader");
+            this.cmd.sendRequest('join', channels[0], this.app.client);
+            this.cmd.watchCommands(['join-accepted', 'join-rejected'], channels[0], this.app.client, {
+              'join-accepted': () => {
+                this.app.joinChannel(channels[0]).then((channel) => {
+                  this.updateContainerUIs(true);
+                  this.channels = [channel];
+                  this.controls.setChannel(channel);
+                  this.chat.setChannel(channel);
+                  this.chat.watchMessages(this.app.client, channel);
+                  this.hideShowControls('joined');
+                });
+              },
+              rejected: () => {}
+            });
+          });
+        }
 
-          this.hideShowControls('joined');
-        });
+        
       });
 
       $('#send-message-button').on('click', () => {
