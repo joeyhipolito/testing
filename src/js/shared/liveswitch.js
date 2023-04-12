@@ -309,14 +309,19 @@ window.Liveswitch = window.Liveswitch || {};
       ) {
         this.remoteMedia.forEach(x => {
           if(x.mediaId !== 'screen') {
-            x.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
+            x.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
           }
         });
+      } else if (this.remoteMedia.filter(x => x.mediaId === 'screen').length > 1 &&
+        this.remoteMedia.filter(x => x.mediaId !== 'screen').length === 0
+      ) {
+        this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
       } else {
         this.remoteMedia.forEach(x => {
           x.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
         });
       }
+      
     };
 
     return MediaStreamingLogic;

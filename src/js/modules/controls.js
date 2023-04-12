@@ -106,29 +106,31 @@ window.Liveswitch = window.Liveswitch || {};
           .addClass(muted ? mutedIconClass : unmutedIconClass);
       });
 
+      const screenSharingCallback = (isSharing) => {
+        const container = $('#pace-screen-layout-manager');
+        const parent = $('#pace-parent-manager-container');
+
+        screenButton
+          .removeClass(!isSharing ? mutedClass : unmutedClass)
+          .addClass(!isSharing ? unmutedClass : mutedClass);
+
+        if(isSharing) {
+          parent.addClass('screen-sharing');
+          container.removeClass('d-none');
+          this.layoutManager.setMode(fm.liveswitch.LayoutMode.Inline);
+          this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
+        } else {
+          parent.removeClass('screen-sharing');
+          container.addClass('d-none');
+          this.layoutManager.setMode(fm.liveswitch.LayoutMode.FloatLocal);
+          this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
+        }
+
+      };
+
       screenButton.on('click', () => {
 
-        this.screenSharing.toggle(this.channel, this.screenLayoutManager, (isSharing) => {
-          const container = $('#pace-screen-layout-manager');
-          const parent = $('#pace-parent-manager-container');
-
-          screenButton
-            .removeClass(!isSharing ? mutedClass : unmutedClass)
-            .addClass(!isSharing ? unmutedClass : mutedClass);
-
-          if(isSharing) {
-            parent.addClass('screen-sharing');
-            container.removeClass('d-none');
-            this.layoutManager.setMode(fm.liveswitch.LayoutMode.Inline);
-            this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
-          } else {
-            parent.removeClass('screen-sharing');
-            container.addClass('d-none');
-            this.layoutManager.setMode(fm.liveswitch.LayoutMode.FloatLocal);
-            this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
-          }
-
-        });
+        this.screenSharing.toggle(this.channel, this.screenLayoutManager, screenSharingCallback);
       });
       
       chatButton.on('click', () => {
@@ -138,12 +140,13 @@ window.Liveswitch = window.Liveswitch || {};
         this.device.toggle();
       });
       leaveButton.on('click', () => {
-        screenButton.click();
+        screenSharingCallback(false);
         this.auth.leave(() => {
           
         });
       });
     };
+
 
 
     return Controls;

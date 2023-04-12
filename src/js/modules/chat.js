@@ -37,7 +37,6 @@ window.Liveswitch = window.Liveswitch || {};
     };
     ChatFactory.prototype.watchMessages = function (client, channel) {
       channel.addOnMessage((remoteClient, message) => {
-        debugger;
         if(remoteClient.getUserId() === client.getUserId()) return;
         const name = remoteClient.getUserAlias() != null ? remoteClient.getUserAlias() : remoteClient.getUserId();
         this.receiveMessage(`${name}: ${message}`);
