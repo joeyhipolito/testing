@@ -390,14 +390,14 @@
 }
 
 .pace-screen-layout-manager {
-  flex: 1;
   height: 100%;
 }
 
 .screen-sharing .pace-layout-manager {
-  max-width: 240px;
+  max-width: 360px;
+  width: 25%;
 }
 
 .screen-sharing .pace-screen-layout-manager {
-
+  width: 75%;
 }
