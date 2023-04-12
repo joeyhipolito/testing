@@ -100,6 +100,7 @@
     };
 
     App.prototype.updateContainerUIs = function (isAuthenticated) {
+      const html = $('html');
       const body = $('body');
       const parentContainer = $('#pace-parent-manager-container');
       const layoutManager = $('#pace-layout-manager');
@@ -108,8 +109,10 @@
       const infoContainer = $('#pace-channel-information');
 
       if(isAuthenticated)  {
+        html.removeClass('unauthenticated');
         infoContainer.hide();
       } else {
+        html.addClass('unauthenticated');
         infoContainer.show();
       }
 
