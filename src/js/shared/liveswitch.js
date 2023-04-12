@@ -123,8 +123,15 @@ window.Liveswitch = window.Liveswitch || {};
       return this.client
         .unregister()
         .then(() => {
+          this.resetLayoutScale();
           for (const i in this.remoteMedia) {
-            this.layoutManager.removeRemoteMedia(this.remoteMedia[i]);
+            if(this.remoteMedia[i].mediaId === 'screen') {
+              this.screenLayoutManager.removeRemoteMedia(this.remoteMedia[i]);
+              const parent = $('#pace-parent-manager-container');
+              parent.removeClass('screen-sharing');
+            } else {
+              this.layoutManager.removeRemoteMedia(this.remoteMedia[i]);
+            }
           }
           this.remoteMedia = [];
         })
@@ -157,7 +164,6 @@ window.Liveswitch = window.Liveswitch || {};
           audioEnabled,
           videoEnabled
         );
-        this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
 
         // Set local media in the layout.
         this.layoutManager.setLocalMedia(this.localMedia);
@@ -243,7 +249,8 @@ window.Liveswitch = window.Liveswitch || {};
         container.removeClass('d-none');
 
         this.layoutManager.setMode(fm.liveswitch.LayoutMode.Inline);
-        this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
+        this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
+        remoteMedia.mediaId = 'screen';
         this.screenLayoutManager.addRemoteMedia(remoteMedia);
 
       } else {
@@ -281,18 +288,36 @@ window.Liveswitch = window.Liveswitch || {};
             container.addClass('d-none');
 
             this.layoutManager.setMode(fm.liveswitch.LayoutMode.FloatLocal);
-            this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
             this.screenLayoutManager.removeRemoteMedia(remoteMedia);
           }
+
+          this.resetLayoutScale();
         }
       });
 
       this.remoteMedia.push(remoteMedia);
+      this.resetLayoutScale();
 
       connection.open();
       return connection;
     };
     MediaStreamingLogic.downstreamConnections = {};
+    MediaStreamingLogic.prototype.resetLayoutScale = function () {
+      if(
+        this.remoteMedia.filter(x => x.mediaId !== 'screen').length > 0 &&
+        (this.localScreenMedia || this.remoteMedia.filter(x => x.mediaId === 'screen').length > 0)
+      ) {
+        this.remoteMedia.forEach(x => {
+          if(x.mediaId !== 'screen') {
+            x.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
+          }
+        });
+      } else {
+        this.remoteMedia.forEach(x => {
+          x.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
+        });
+      }
+    };
 
     return MediaStreamingLogic;
   })();

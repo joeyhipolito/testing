@@ -120,14 +120,14 @@ window.Liveswitch = window.Liveswitch || {};
             parent.addClass('screen-sharing');
             container.removeClass('d-none');
             this.layoutManager.setMode(fm.liveswitch.LayoutMode.Inline);
-            this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
+            this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
           } else {
             parent.removeClass('screen-sharing');
             container.addClass('d-none');
             this.layoutManager.setMode(fm.liveswitch.LayoutMode.FloatLocal);
-            this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
+            this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
           }
-          
+
         });
       });
       
@@ -138,6 +138,7 @@ window.Liveswitch = window.Liveswitch || {};
         this.device.toggle();
       });
       leaveButton.on('click', () => {
+        screenButton.click();
         this.auth.leave(() => {
           
         });
