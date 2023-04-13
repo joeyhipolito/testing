@@ -27,6 +27,7 @@
       this.auth = ls.AuthFactory.getInstance(this.app.leaveAsync.bind(this.app));
       this.cmd = ls.CmdFactory.getInstance(this.app.client);
       this.auth.setLeaveCallback(() => {
+        $('.pace-channel-waiting').addClass('d-none')
         this.updateContainerUIs();
         this.channels = [];
         this.hideShowControls('always');
