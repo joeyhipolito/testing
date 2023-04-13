@@ -68,10 +68,12 @@
     App.prototype.bindEvents = function () {
       // Bind events.
       $('#pace-join').on('click', (e) => {
+        const useralias = $('#useralias').val();
+
         e.preventDefault();
         const host = isHost();
         if(host) {
-            this.app.joinAsync().then((channels) => {
+            this.app.joinAsync(useralias).then((channels) => {
               this.updateContainerUIs(true);
               this.channels = channels;
               this.controls.setChannel(channels[0]);
@@ -81,7 +83,7 @@
               this.hideShowControls('joined');
             });
         } else {
-          this.app.joinCmdAsync().then((channels) => {
+          this.app.joinCmdAsync(useralias).then((channels) => {
             $('.pace-channel-information').hide();
             $('.pace-channel-waiting')
               .removeClass('d-none')

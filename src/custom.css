@@ -20,7 +20,7 @@
   }
   .unauthenticated .pace-layout-managers__container {
     margin-left: 5rem;
-    margin-right: 5rem;
+    margin-right: 2rem;
   }
 }
 
@@ -34,8 +34,14 @@
   width: 30%;
 }
 
-.unauthenticated .pace-channel-information h1 {
+.unauthenticated .pace-channel-information h1,
+.unauthenticated .pace-channel-information label {
   color: #111;
+}
+
+.pace-channel-information span {
+  width: 60%;
+  margin-bottom: 1rem;
 }
 
 .pace-layout-managers__container {

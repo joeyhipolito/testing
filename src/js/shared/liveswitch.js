@@ -33,6 +33,8 @@ window.Liveswitch = window.Liveswitch || {};
 
       this.remoteMedia = [];
       this.remoteScreenMedia = [];
+
+      this.useralias = null;
       // Log to console.
       fm.liveswitch.Log.registerProvider(new fm.liveswitch.ConsoleLogProvider(fm.liveswitch.LogLevel.Debug));
     }
@@ -103,9 +105,11 @@ window.Liveswitch = window.Liveswitch || {};
       return this.client;
     };
 
-    MediaStreamingLogic.prototype.joinCmdAsync = function () {
+    MediaStreamingLogic.prototype.joinCmdAsync = function (useralias) {
+      this.useralias = useralias;
       const promise = new fm.liveswitch.Promise();
       client = this.getClient();
+      client.setUserAlias(useralias);
 
       // Generate a token (do this on the server to avoid exposing your shared secret).
       const token = this.getToken([new fm.liveswitch.ChannelClaim(this.channelId + '_cmd')]);
@@ -145,9 +149,11 @@ window.Liveswitch = window.Liveswitch || {};
 
     };
 
-    MediaStreamingLogic.prototype.joinAsync = function () {
+    MediaStreamingLogic.prototype.joinAsync = function (useralias) {
+      this.useralias = useralias;
       const promise = new fm.liveswitch.Promise();
-      client = this.getClient()
+      client = this.getClient();
+      client.setUserAlias(useralias);
 
       // Generate a token (do this on the server to avoid exposing your shared secret).
       const token = this.getToken([new fm.liveswitch.ChannelClaim(this.channelId), new fm.liveswitch.ChannelClaim(this.channelId + '_cmd')]);

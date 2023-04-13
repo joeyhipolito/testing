@@ -23,12 +23,13 @@ window.Liveswitch = window.Liveswitch || {};
 
     CmdFactory.prototype.requestJoin = function (clientInfo, message, channel) {
       const userId = clientInfo.getUserId();
+      const name = clientInfo.getUserAlias() != null ? clientInfo.getUserAlias() : userId;
       $('<div></div>').kendoDialog({
         width: '400px',
         title: 'Join Request',
         closable: false,
         modal: true,
-        content: `${userId} wants to join your channel. Do you want to allow them to join?`,
+        content: `${name} wants to join your channel. Do you want to allow them to join?`,
         actions: [
           { text: 'Yes', primary: true, action: () => {
             this.sendCommand('join-accepted', channel, userId);
