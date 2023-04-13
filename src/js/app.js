@@ -150,6 +150,9 @@
       } else {
         html.addClass('unauthenticated');
         infoContainer.show();
+        if(!this.chat.hidden) {
+          this.chat.toggle();
+        }
       }
 
       const authenticatedClassBody = 'bg-gray-900';
