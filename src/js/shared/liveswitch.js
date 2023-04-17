@@ -149,11 +149,15 @@ window.Liveswitch = window.Liveswitch || {};
 
     };
 
-    MediaStreamingLogic.prototype.joinAsync = function (useralias) {
+    MediaStreamingLogic.prototype.joinAsync = function (useralias, host) {
       this.useralias = useralias;
       const promise = new fm.liveswitch.Promise();
       client = this.getClient();
       client.setUserAlias(useralias);
+      if (host) {
+        debugger;
+        client.setTag('ready');
+      }
 
       // Generate a token (do this on the server to avoid exposing your shared secret).
       const token = this.getToken([new fm.liveswitch.ChannelClaim(this.channelId), new fm.liveswitch.ChannelClaim(this.channelId + '_cmd')]);

@@ -73,37 +73,66 @@
         e.preventDefault();
         const host = isHost();
         if(host) {
-            this.app.joinAsync(useralias).then((channels) => {
+            this.app.joinAsync(useralias, true).then((channels) => {
               this.updateContainerUIs(true);
               this.channels = channels;
               this.controls.setChannel(channels[0]);
               this.chat.setChannel(channels[0]);
               this.chat.watchMessages(this.app.client, this.channels[0]);
               this.cmd.watchRequests('join', channels[1], this.app.client);
+              this.cmd.sendCommand('ready', channels[1]);
               this.hideShowControls('joined');
             });
         } else {
           this.app.joinCmdAsync(useralias).then((channels) => {
+            const cmdChannel = channels[0];
+
+            const readyFn = () => {
+              this.cmd.sendRequest('join', cmdChannel, this.app.client);
+              this.cmd.watchCommands(['join-accepted', 'join-rejected'], channels[0], this.app.client, {
+                'join-accepted': () => {
+                  this.app.joinChannel(channels[0]).then((channel) => {
+                    this.updateContainerUIs(true);
+                    this.channels = [channel];
+                    this.controls.setChannel(channel);
+                    this.chat.setChannel(channel);
+                    this.chat.watchMessages(this.app.client, channel);
+                    this.hideShowControls('joined');
+                  });
+                },
+                rejected: () => {}
+              });
+            };
+
             $('.pace-channel-information').hide();
             $('.pace-channel-waiting')
               .removeClass('d-none')
               .find('span').kendoLoader({
                 size: 'medium'
               }).data("kendoLoader");
-            this.cmd.sendRequest('join', channels[0], this.app.client);
-            this.cmd.watchCommands(['join-accepted', 'join-rejected'], channels[0], this.app.client, {
-              'join-accepted': () => {
-                this.app.joinChannel(channels[0]).then((channel) => {
-                  this.updateContainerUIs(true);
-                  this.channels = [channel];
-                  this.controls.setChannel(channel);
-                  this.chat.setChannel(channel);
-                  this.chat.watchMessages(this.app.client, channel);
-                  this.hideShowControls('joined');
-                });
-              },
-              rejected: () => {}
-            });
+
+            let hasHostAndReady = false;
+            const existingRemoteClients = cmdChannel.getRemoteClientInfos();
+            for(let i = 0; i < existingRemoteClients.length; i++) {
+              const client = existingRemoteClients[i];
+              if(client.getTag() === 'ready') {
+                hasHostAndReady = true;
+                break;
+              }
+            }
+
+            
+            if(hasHostAndReady) {
+              readyFn();
+            } else {
+              this.cmd.watchCommands(['ready'], channels[0], this.app.client, {
+                'ready': () => {
+                  readyFn();
+                }
+              })
+            }
+            
+            
           });
         }
 

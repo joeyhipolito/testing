@@ -9,6 +9,7 @@ window.Liveswitch = window.Liveswitch || {};
       this.allowedRequests.set('join', this.requestJoin.bind(this));
       this.allowedCommands = new Map();
       this.allowedCommands.set('join-accepted', this.joinAccepted.bind(this));
+      this.allowedCommands.set('ready', this.ready.bind(this));
     }
     CmdFactory.getInstance = function (client) {
       if (CmdFactory.instance == null) {
@@ -19,6 +20,11 @@ window.Liveswitch = window.Liveswitch || {};
 
     CmdFactory.prototype.joinAccepted = function (remoteClient, message, channel, cbs) {
       cbs['join-accepted'](remoteClient, message, channel);
+    };
+
+    CmdFactory.prototype.ready = function (remoteClient, message, channel, cbs) {
+      debugger;
+      cbs['ready'](remoteClient, message, channel);
     };
 
     CmdFactory.prototype.requestJoin = function (clientInfo, message, channel) {
@@ -45,7 +51,11 @@ window.Liveswitch = window.Liveswitch || {};
     };
 
     CmdFactory.prototype.sendCommand = function (message, channel, userId) {
-      channel.sendUserMessage(userId, message);
+      if(!userId) {
+        channel.sendMessage(message);
+      } else {
+        channel.sendUserMessage(userId, message);
+      }
     };
 
     CmdFactory.prototype.watchRequests = function (requests, channel, client) {
@@ -57,6 +67,14 @@ window.Liveswitch = window.Liveswitch || {};
 
     CmdFactory.prototype.watchCommands = function (commands, channel, client, cbs) {
       channel.addOnUserMessage((remoteClient, message) => {
+        for (let i = 0; i < commands.length; i++) {
+          if (message === commands[i]) {
+            this.allowedCommands.get(commands[i])(client, message, channel, cbs);
+          }
+        }
+      });
+
+      channel.addOnMessage((remoteClient, message) => {
         for (let i = 0; i < commands.length; i++) {
           if (message === commands[i]) {
             this.allowedCommands.get(commands[i])(client, message, channel, cbs);
