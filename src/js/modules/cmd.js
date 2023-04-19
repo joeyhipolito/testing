@@ -23,7 +23,7 @@ window.Liveswitch = window.Liveswitch || {};
     };
 
     CmdFactory.prototype.ready = function (remoteClient, message, channel, cbs) {
-      debugger;
+      this.allowedCommands.delete('ready');
       cbs['ready'](remoteClient, message, channel);
     };
 

@@ -155,7 +155,6 @@ window.Liveswitch = window.Liveswitch || {};
       client = this.getClient();
       client.setUserAlias(useralias);
       if (host) {
-        debugger;
         client.setTag('ready');
       }
 

@@ -27,7 +27,7 @@
       this.auth = ls.AuthFactory.getInstance(this.app.leaveAsync.bind(this.app));
       this.cmd = ls.CmdFactory.getInstance(this.app.client);
       this.auth.setLeaveCallback(() => {
-        $('.pace-channel-waiting').addClass('d-none')
+        $('.pace-channel-waiting').addClass('d-none').hide();
         this.updateContainerUIs();
         this.channels = [];
         this.hideShowControls('always');
@@ -107,6 +107,7 @@
             $('.pace-channel-information').hide();
             $('.pace-channel-waiting')
               .removeClass('d-none')
+              .show()
               .find('span').kendoLoader({
                 size: 'medium'
               }).data("kendoLoader");

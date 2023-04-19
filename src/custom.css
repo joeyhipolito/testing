@@ -3,24 +3,43 @@
 .unauthenticated .pace-layout-manager {
   width: 100%;
   height: 100%;
-  max-width: 960px;
-  max-height: 540px;
   margin: auto;
+  max-height: 240px;
 }
+
 
 .unauthenticated .pace-layout-managers__container {
   border-radius: 0.5rem;
   overflow: hidden;
-  width: 70%;
+  margin-bottom: 5rem;
 }
 
-@media (min-width: 640px) {
+@media screen and (min-width: 480px) {
+  .unauthenticated .pace-layout-managers__container,
+  .unauthenticated .pace-controls-container,
+  .unauthenticated .pace-layout-manager {
+    max-height: 480px;
+  }
+}
+
+@media screen and (min-width: 960px) {
+  .unauthenticated .pace-layout-managers__container,
+  .unauthenticated .pace-controls-container,
+  .unauthenticated .pace-layout-manager {
+    max-width: 960px;
+    max-height: 540px;
+    margin: 5rem 2rem;
+  }
+
   .unauthenticated body {
     display: flex;
   }
   .unauthenticated .pace-layout-managers__container {
-    margin-left: 5rem;
-    margin-right: 2rem;
+    width: 70%;
+  }
+
+  .unauthenticated .pace-channel-information {
+    width: 30%;
   }
 }
 
@@ -31,7 +50,6 @@
   top: unset;
   transform: unset;
   height: unset;
-  width: 30%;
 }
 
 .unauthenticated .pace-channel-information h1,
@@ -57,7 +75,13 @@
 }
 
 .pace-layout-managers__container.pace-layout-managers__container--connected {
-  padding: 4rem 2rem;
+  padding: 0;
+}
+
+@media screen and (min-width: 480px) {
+  .pace-layout-managers__container.pace-layout-managers__container--connected {
+    padding: 4rem 2rem;
+  }
 }
 
 .pace-layout-manager {
@@ -83,16 +107,24 @@
 }
 
 .pace-control {
-  margin-left: 1rem;
+  margin-right: 1rem;
   display: flex;
-  height: 3rem;
-  width: 3rem;
+  height: 2rem;
+  width: 2rem;
   cursor: pointer;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
   border-width: 1px;
-  font-size: 1.5rem;
+  font-size: 1rem;
+}
+
+@media screen and (min-width: 480px) {
+  .pace-control {
+    height: 3rem;
+    width: 3rem;
+    font-size: 1.5rem;
+  }
 }
 
 .pace-control--unmuted {
@@ -133,6 +165,17 @@
   .pace-device-container {
     max-width: 320px;
   }
+}
+
+.pace-chat__close {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pace-device__close {
@@ -183,7 +226,7 @@
   top: unset;
   transform: unset;
   height: unset;
-  width: 30%;
+  width: unset;
   display: flex;
   flex-direction: column;
   justify-content: center;

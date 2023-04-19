@@ -6,6 +6,15 @@ window.Liveswitch = window.Liveswitch || {};
       this.messages = [];
       this.hidden = true;
       this.messagesContainer = $('.messages').first();
+
+      const container = $('.pace-chat-container');
+      container.append(`
+      <a class="pace-chat__close">
+        <i class="fa fa-times"></i>
+      </a>
+      `).on('click', '.pace-chat__close', () => {
+        this.toggle();
+      });
     }
     ChatFactory.getInstance = function (client) {
       if (ChatFactory.instance == null) {
@@ -25,6 +34,11 @@ window.Liveswitch = window.Liveswitch || {};
         .removeClass(this.hidden ?  'pace-chat-container--inactive' : 'pace-chat-container--active')
         .addClass(this.hidden ? 'pace-chat-container--active' : 'pace-chat-container--inactive');
       this.hidden = !this.hidden;
+      if(this.hidden) {
+        lsChatContainer.hide();
+      } else {
+        lsChatContainer.show();
+      }
     };
     ChatFactory.prototype.sendMessage = function (channel, message) {
       this.messages.push(message);
