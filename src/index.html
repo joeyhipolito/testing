@@ -9,6 +9,7 @@
         <script src="https://kit.fontawesome.com/0f5e35312b.js" crossorigin="anonymous"></script>
         <script src="/js/dependencies/jquery-3.6.4.min.js"></script>
         <script src="/js/dependencies/kendo.all.min.js"></script>
+        <script src="https://unpkg.com/konva@8.2.2/konva.min.js"></script>
         <style>
           .dropdown:focus-within .dropdown-menu {
             opacity:1;
@@ -18,6 +19,8 @@
         </style>
     </head>
     <body class="h-100 w-100">
+
+      <span id="notification" style="display:none;"></span>
       
       <div id="pace-parent-manager-container" class="pace-layout-managers__container">
         <div id="pace-screen-layout-manager" class="pace-screen-layout-manager d-none"></div>
@@ -54,6 +57,8 @@
 
       </div>
 
+      <div id="pace-whiteboard-container" class="pace-whiteboard-container w-100 h-100"></div>
+
       
       <script src="/js/dependencies/fm.liveswitch.js"></script>
       <script src="/js/shared/liveswitch.js"></script>
@@ -65,6 +70,16 @@
       <script src="/js/modules/device.js"></script>
       <script src="/js/modules/auth.js"></script>
       <script src="/js/modules/cmd.js"></script>
+      <script src="/js/modules/whiteboard.js"></script>
       <script src="/js/app.js"></script>
+
+      <script id="messageTemplate" type="text/x-kendo-template">
+        <div class="new-message">
+            <i class="fa-regular fa-message"></i>
+            <h3>New Message!</h3>
+            <p>#= message #</p>
+        <div class="new-message__overlay"></div>
+        </div>
+    </script>
     </body>
 </html>

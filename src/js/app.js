@@ -82,6 +82,16 @@
               this.cmd.watchRequests('join', channels[1], this.app.client);
               this.cmd.sendCommand('ready', channels[1]);
               this.hideShowControls('joined');
+
+              const whiteBoard = Liveswitch.WhiteBoardFactory.getInstance(this.app.client);
+
+              // Set the whiteboard container
+              whiteBoard.init('pace-whiteboard-container');
+              whiteBoard.setTool('brush'); // 'brush', 'eraser', 'rectangle', or 'circle'
+              whiteBoard.setColor('#000000'); // Replace with the desired color
+              whiteBoard.setStrokeWidth(5);
+              whiteBoard.setChannel(channels[0]);
+              whiteBoard.receiveDrawing();
             });
         } else {
           this.app.joinCmdAsync(useralias).then((channels) => {
@@ -98,6 +108,16 @@
                     this.chat.setChannel(channel);
                     this.chat.watchMessages(this.app.client, channel);
                     this.hideShowControls('joined');
+                    $('.pace-channel-waiting')
+                      .addClass('d-none')
+                      .hide();
+                    const whiteBoard = Liveswitch.WhiteBoardFactory.getInstance(this.app.client);
+                    whiteBoard.init('pace-whiteboard-container');
+                    whiteBoard.setTool('brush'); // 'brush', 'eraser', 'rectangle', or 'circle'
+                    whiteBoard.setColor('#000000'); // Replace with the desired color
+                    whiteBoard.setStrokeWidth(5);
+                    whiteBoard.setChannel(channel);
+                    whiteBoard.receiveDrawing();
                   });
                 },
                 rejected: () => {}

@@ -15,6 +15,25 @@ window.Liveswitch = window.Liveswitch || {};
       `).on('click', '.pace-chat__close', () => {
         this.toggle();
       });
+
+      this.notification = $("#notification").kendoNotification({
+          position: {
+            pinned: true,
+            top: 30,
+            right: 30
+          },
+          autoHideAfter: 0,
+          stacking: "down",
+          templates: [{
+            type: "message",
+            template: $("#messageTemplate").html()
+          }]
+
+      }).data("kendoNotification");
+
+      $('#notification').on('click', '.k-animation-container', () => {
+        this.toggle();
+      });
     }
     ChatFactory.getInstance = function (client) {
       if (ChatFactory.instance == null) {
@@ -51,8 +70,14 @@ window.Liveswitch = window.Liveswitch || {};
     };
     ChatFactory.prototype.watchMessages = function (client, channel) {
       channel.addOnMessage((remoteClient, message) => {
+
         if(remoteClient.getUserId() === client.getUserId()) return;
         const name = remoteClient.getUserAlias() != null ? remoteClient.getUserAlias() : remoteClient.getUserId();
+        if(this.hidden) {
+          this.notification.show({
+              message: `${name}: ${message}`
+          }, "message");
+        }
         this.receiveMessage(`${name}: ${message}`);
       });
     };
