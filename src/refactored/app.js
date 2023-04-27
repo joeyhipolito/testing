@@ -294,40 +294,49 @@ window.Liveswitch = window.Liveswitch || {};
   }
 
   $(document).ready(() => {
-    const client = 1;
+    const client = 1; // TODO: generate client
+
+    const videoLayoutManager = new fm.liveswitch.DomLayoutManager($('.pace__layout-manager').get(0));
+    const screenSharingLayoutManager = new fm.liveswitch.DomLayoutManager($('.pace__screen-layout-manager').get(0));
+    
     const chat = ChatSingleton.getInstance(client);
-
-    // Toggle chat visibility
-    $('#toggleChatButton').on('click', function() {
-      chat.toggle();
-    });
-  
     const device = DeviceSingleton.getInstance();
-  
-    // Toggle device visibility
-    $('#toggleDeviceButton').on('click', function() {
-      device.toggle();
-    });
+    const audioLocalMedia = MediaFactory.createMedia(true, null);
+    const videoLocalMedia = MediaFactory.createMedia(false, videoLayoutManager);
 
-    const layoutManager = new fm.liveswitch.DomLayoutManager($('.pace__layout-manager').get(0));
+    const toggleButtonState = (buttonId, mutedIconClass, unmutedIconClass) => {
+      const button = $(`#${buttonId}`);
+      button.toggleClass('pace-control--muted pace-control--unmuted')
+        .find('i')
+        .toggleClass(`${mutedIconClass} ${unmutedIconClass}`);
+    };
 
-    const audio = MediaFactory.createMedia(true, null);
-    const video = MediaFactory.createMedia(false, layoutManager);
-
-    video.startLocalMedia();
-    audio.startLocalMedia();
+    audioLocalMedia.startLocalMedia();
+    videoLocalMedia.startLocalMedia();
 
     const mediaMuterFactory = new MediaMuterFactory();
 
-    const onAudioMute = () => console.log("Audio muted");
-    const onAudioUnmute = () => console.log("Audio unmuted");
-    const audioMuter = mediaMuterFactory.createInstance(audio, 'Audio', onAudioMute, onAudioUnmute);
-    
+    const onAudioMute = () => {
+      console.log("Audio muted");
+      toggleButtonState('pace-audio', 'fa-microphone', 'fa-microphone-slash');
+    };
+    const onAudioUnmute = () => {
+      console.log("Audio unmuted");
+      toggleButtonState('pace-audio', 'fa-microphone-slash', 'fa-microphone');
+    };
+    const onVideoMute = () => {
+      console.log("Video muted");
+      videoLocalMedia.stopLocalMedia();
+      toggleButtonState('pace-video', 'fa-video', 'fa-video-slash');
+    };
+    const onVideoUnmute = () => {
+      console.log("Video unmuted");
+      videoLocalMedia.startLocalMedia();
+      toggleButtonState('pace-video', 'fa-video-slash', 'fa-video');
+    };
 
-    const onVideoMute = () => console.log("Video muted");
-    const onVideoUnmute = () => console.log("Video unmuted");
-    const videoMuter = mediaMuterFactory.createInstance(video, 'Video', onVideoMute, onVideoUnmute);
-    
+    const audioMuter = mediaMuterFactory.createInstance(audioLocalMedia, 'Audio', onAudioMute, onAudioUnmute);
+    const videoMuter = mediaMuterFactory.createInstance(videoLocalMedia, 'Video', onVideoMute, onVideoUnmute);
 
     $('#pace-audio').on('click', function() {
       audioMuter.toggleMute();
@@ -335,6 +344,15 @@ window.Liveswitch = window.Liveswitch || {};
 
     $('#pace-video').on('click', function() {
       videoMuter.toggleMute();
+    });
+
+    // Toggle chat visibility
+    $('#pace-chat').on('click', function() {
+      chat.toggle();
+    });
+    // Toggle device visibility
+    $('#pace-device').on('click', function() {
+      device.toggle();
     });
   });
 })(Liveswitch, $);
