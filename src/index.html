@@ -39,8 +39,9 @@
         <h1>Waiting for host...</h1>
       </div>
 
-      <div id="pace-device-container" class="pace-device-container"></div>
-      <div class="pace-chat-container">
+      <div class="overlay__container w-100 h-100 overflow-hidden position-fixed fixed-top z-0">
+        <div id="pace-device-container" class="pace-device-container  pace-device-container--inactive"></div>
+      <div class="pace-chat-container pace-chat-container--inactive">
         <div class="messages"></div>
         <div>
           <div>
@@ -56,8 +57,10 @@
         </div>
 
       </div>
+      </div>
+      
 
-      <div id="pace-whiteboard-container" class="pace-whiteboard-container w-100 h-100"></div>
+      <div id="pace-whiteboard-container" class="pace-whiteboard-container w-100 h-100 d-none"></div>
 
       
       <script src="/js/dependencies/fm.liveswitch.js"></script>

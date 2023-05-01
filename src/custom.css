@@ -504,3 +504,12 @@
   height: 100%;
   border: 1px solid red;
 }
+
+.overlay__container {
+  pointer-events: none;
+}
+
+.pace-device-container,
+.pace-chat-container {
+  pointer-events: auto
+}

@@ -51,12 +51,13 @@
 
     App.prototype.init = function () {
       this.app.startLocalMedia().then(() => {
-        const { localMedia, layoutManager, localScreenMedia, screenLayoutManager } = this.app;
+        const { audioLocalMedia, videoLocalMedia, layoutManager, localScreenMedia, screenLayoutManager } = this.app;
         this.controls = ls.Controls.getInstance({
-          localMedia,
+          videoLocalMedia,
           layoutManager,
           screenMedia: localScreenMedia,
-          screenLayoutManager
+          screenLayoutManager,
+          audioLocalMedia
         });
 
         this.controls.setAuth(this.auth);

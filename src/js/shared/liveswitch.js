@@ -26,6 +26,8 @@ window.Liveswitch = window.Liveswitch || {};
       this.downstreamConnections = {};
 
       this.localMedia = null;
+      this.audioLocalMedia = null;
+      this.videoLocalMedia = null;
 
       // Create a new local media for screen capturing.
       this.localScreenMedia = new fm.liveswitch.LocalMedia(false, true, true);
@@ -135,10 +137,11 @@ window.Liveswitch = window.Liveswitch || {};
       this.client.join(this.channelId, token)
         .then((channel) => {
           this.channel = channel;
-          // Open a new SFU upstream connection.
-          this.upstreamConnection = this.openSfuUpstreamConnection(this.localMedia);
-
-          // Open a new SFU downstream connection when a remote upstream connection is opened.
+          
+          // Open a new SFU upstream connection with separate audio and video LocalMedia instances
+          this.upstreamConnection = this.openSfuUpstreamConnection(this.audioLocalMedia, this.videoLocalMedia)
+        
+          // Open a new SFU downstream connection when a remote upstream connection is opened
           this.channel.addOnRemoteUpstreamConnectionOpen((remoteConnectionInfo) =>
             this.openSfuDownstreamConnection(remoteConnectionInfo)
           );
@@ -148,6 +151,7 @@ window.Liveswitch = window.Liveswitch || {};
       return promise;
 
     };
+    
 
     MediaStreamingLogic.prototype.joinAsync = function (useralias, host) {
       this.useralias = useralias;
@@ -215,81 +219,116 @@ window.Liveswitch = window.Liveswitch || {};
     MediaStreamingLogic.prototype.onHostClientRegistered = function (channels) {
       this.channel = channels[0];
       this.cmdChannel = channels[1];
-
-      // Open a new SFU upstream connection.
-      this.upstreamConnection = this.openSfuUpstreamConnection(this.localMedia);
-
+    
+      // Assuming audioLocalMedia and videoLocalMedia are your separate LocalMedia instances for audio and video
+    
+      // Open a new SFU upstream connection with separate audio and video LocalMedia instances.
+      this.upstreamConnection = this.openSfuUpstreamConnection(this.audioLocalMedia, this.videoLocalMedia);
+    
       // Open a new SFU downstream connection when a remote upstream connection is opened.
       this.channel.addOnRemoteUpstreamConnectionOpen((remoteConnectionInfo) =>
         this.openSfuDownstreamConnection(remoteConnectionInfo)
       );
-
     };
+    
 
     MediaStreamingLogic.localMedia = undefined;
 
     MediaStreamingLogic.prototype.startLocalMedia = function () {
       const promise = new fm.liveswitch.Promise();
-
-      if (this.localMedia == null) {
-        // Create local media with audio and video enabled.
+    
+      if (this.audioLocalMedia == null && this.videoLocalMedia == null) {
+        // Create local audio media
         const audioEnabled = true;
+        this.audioLocalMedia = new fm.liveswitch.LocalMedia(audioEnabled, false);
+    
+        // Create local video media
         const videoEnabled = true;
-        this.localMedia = new fm.liveswitch.LocalMedia(
-          audioEnabled,
-          videoEnabled
-        );
-
-        // Set local media in the layout.
-        this.layoutManager.setLocalMedia(this.localMedia);
+        this.videoLocalMedia = new fm.liveswitch.LocalMedia(false, videoEnabled);
+        this.localMedia = this.videoLocalMedia;
+    
+        this.layoutManager.setLocalMedia(this.videoLocalMedia);
       }
-
-      // Start capturing local media.
-      this.localMedia
+    
+      // Start capturing local audio media.
+      this.audioLocalMedia
         .start()
         .then(() => {
-          fm.liveswitch.Log.debug("Media capture started.");
-          promise.resolve(null);
+          fm.liveswitch.Log.debug("Audio media capture started.");
         })
         .fail((ex) => {
           fm.liveswitch.Log.error(ex.message);
           promise.reject(ex);
         });
-
-      return promise;
-    };
-
-    MediaStreamingLogic.prototype.stopLocalMedia = function () {
-      const promise = new fm.liveswitch.Promise();
-
-      // Stop capturing local media.
-      this.localMedia
-        .stop()
+    
+      // Start capturing local video media.
+      this.videoLocalMedia
+        .start()
         .then(() => {
-          fm.liveswitch.Log.debug("Media capture stopped.");
-          promise.resolve(null);
+          fm.liveswitch.Log.debug("Video media capture started.");
+          promise.resolve(this.videoLocalMedia);
         })
         .fail((ex) => {
           fm.liveswitch.Log.error(ex.message);
           promise.reject(ex);
         });
-
+    
       return promise;
     };
+    
+
+    MediaStreamingLogic.prototype.stopLocalMedia = function (mediaType) {
+      const promise = new fm.liveswitch.Promise();
+    
+      const stopMedia = (media, mediaName) => {
+        return media
+          .stop()
+          .then(() => {
+            fm.liveswitch.Log.debug(`${mediaName} media capture stopped.`);
+          })
+          .fail((ex) => {
+            fm.liveswitch.Log.error(ex.message);
+            promise.reject(ex);
+          });
+      };
+    
+      const stopPromises = [];
+    
+      // Stop capturing local audio media.
+      if (mediaType === 'audio' || mediaType === 'both') {
+        stopPromises.push(stopMedia(this.audioLocalMedia, 'Audio'));
+      }
+    
+      // Stop capturing local video media.
+      if (mediaType === 'video' || mediaType === 'both') {
+        stopPromises.push(stopMedia(this.videoLocalMedia, 'Video'));
+      }
+    
+      fm.liveswitch.Promise.all(stopPromises)
+        .then(() => {
+          promise.resolve(null);
+        })
+        .fail((ex) => {
+          promise.reject(ex);
+        });
+    
+      return promise;
+    };
+    
 
     MediaStreamingLogic.upstreamConnection = undefined;
 
-    MediaStreamingLogic.prototype.openSfuUpstreamConnection = function (localMedia) {
-      // Create audio and video streams from local media.
-      const audioStream = new fm.liveswitch.AudioStream(localMedia);
-      const videoStream = new fm.liveswitch.VideoStream(localMedia);
-
+    MediaStreamingLogic.prototype.openSfuUpstreamConnection = function (audioLocalMedia, videoLocalMedia) {
+      // Create audio and video streams from local audio and video media.
+      const audioStream = new fm.liveswitch.AudioStream(audioLocalMedia);
+      const videoStream = new fm.liveswitch.VideoStream(videoLocalMedia);
+    
       // Create a SFU upstream connection with local audio and video.
       const connection = this.channel.createSfuUpstreamConnection(
         audioStream,
         videoStream
       );
-
+    
       connection.addOnStateChange((conn) => {
         fm.liveswitch.Log.debug(
           `Upstream connection is ${new fm.liveswitch.ConnectionStateWrapper(
@@ -297,11 +336,12 @@ window.Liveswitch = window.Liveswitch || {};
           ).toString()}.`
         );
       });
-
+    
       connection.open();
-
+    
       return connection;
     };
+    
 
     MediaStreamingLogic.prototype.openSfuDownstreamConnection = function (remoteConnectionInfo) {
       // Create remote media.
@@ -324,7 +364,7 @@ window.Liveswitch = window.Liveswitch || {};
         container.removeClass('d-none');
 
         this.layoutManager.setMode(fm.liveswitch.LayoutMode.Inline);
-        this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
+        this.videoLocalMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Cover);
         remoteMedia.mediaId = 'screen';
         this.screenLayoutManager.addRemoteMedia(remoteMedia);
 
@@ -392,7 +432,7 @@ window.Liveswitch = window.Liveswitch || {};
             x.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
           }
         });
-        this.localMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
+        this.videoLocalMedia.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);
       }  else {
         this.remoteMedia.forEach(x => {
           x.getViewSink().setViewScale(fm.liveswitch.LayoutScale.Contain);

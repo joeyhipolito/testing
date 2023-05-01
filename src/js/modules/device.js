@@ -2,20 +2,22 @@ window.Liveswitch = window.Liveswitch || {};
 
 ((Liveswitch, $) => {
   const DeviceFactory = (() => {
-    function DeviceFactory(localMedia) {
+    function DeviceFactory(audioLocalMedia, videoLocalMedia) {
       this.hidden = true;
       this.localMedia = localMedia;
-      this.defaultMicrophoneDevice = localMedia.getAudioSourceInput().getName();
-      this.defaultVideoDevice = localMedia.getVideoSourceInput().getName();
+      this.audioLocalMedia = audioLocalMedia;
+      this.videoLocalMedia = videoLocalMedia;
+      this.defaultMicrophoneDevice = this.audioLocalMedia.getAudioSourceInput().getName();
+      this.defaultVideoDevice = this.videoLocalMedia.getVideoSourceInput().getName();
       this.microphoneDevices = [];
       this.videoDevices = [];
-      localMedia.getAudioSourceInputs().then((microphoneDevices) => {
+      this.audioLocalMedia.getAudioSourceInputs().then((microphoneDevices) => {
         microphoneDevices.map((device) => {
           this.microphoneDevices.push({ id: device.getId(), name: device.getName() });
         });
         this.renderMicrophoneSelect();
       });
-      localMedia.getVideoSourceInputs().then((videoDevices) => {
+      this.videoLocalMedia.getVideoSourceInputs().then((videoDevices) => {
         videoDevices.map((device) => {
           this.videoDevices.push({ id: device.getId(), name: device.getName() });
         });
@@ -33,9 +35,9 @@ window.Liveswitch = window.Liveswitch || {};
       });
 
     }
-    DeviceFactory.getInstance = function (localMedia) {
+    DeviceFactory.getInstance = function (audioLocalMedia, videoLocalMedia) {
       if (DeviceFactory.instance == null) {
-        DeviceFactory.instance = new DeviceFactory(localMedia);
+        DeviceFactory.instance = new DeviceFactory(audioLocalMedia, videoLocalMedia);
       }
       return DeviceFactory.instance;
     };
@@ -53,7 +55,7 @@ window.Liveswitch = window.Liveswitch || {};
     DeviceFactory.prototype.onMicrophoneDeviceChange = function (id) {
       const deviceId = id;
       const deviceName = this.microphoneDevices.find((device) => device.id === deviceId).name;
-      this.localMedia.changeAudioSourceInput(
+      this.audioLocalMedia.changeAudioSourceInput(
         new fm.liveswitch.SourceInput(deviceId, deviceName)
       );
     };
@@ -61,7 +63,7 @@ window.Liveswitch = window.Liveswitch || {};
     DeviceFactory.prototype.onVideoDeviceChange = function (id) {
       const deviceId = id;
       const deviceName = this.videoDevices.find((device) => device.id === deviceId).name;
-      this.localMedia.changeVideoSourceInput(
+      this.videoLocalMedia.changeVideoSourceInput(
         new fm.liveswitch.SourceInput(deviceId, deviceName)
       );
     };

@@ -6,9 +6,13 @@ window.Liveswitch = window.Liveswitch || {};
       parentContainerSelector: '#pace-parent-manager-container',
       layoutManagerSelector: '#pace-layout-manager',
       screenLayoutManagerSelector: '#pace-screen-layout-manager',
+      audioLocalMedia: null,
+      videoLocalMedia: null
     }}) {
 
-      this.localMedia = localMedia;
+      // this.localMedia = localMedia;
+      this.audioLocalMedia = options.audioLocalMedia;
+      this.videoLocalMedia = options.videoLocalMedia;
       this.screenMedia = screenMedia;
       this.layoutManager = layoutManager;
       this.screenLayoutManager = screenLayoutManager;
@@ -18,19 +22,19 @@ window.Liveswitch = window.Liveswitch || {};
       // container of layout managers below
       this.parentContainer = $(options.parentContainerSelector);
 
-      this.audio = Liveswitch.AudioFactory.getInstance(localMedia);
-      this.video = Liveswitch.VideoFactory.getInstance(localMedia);
+      this.audio = Liveswitch.AudioFactory.getInstance(this.audioLocalMedia);
+      this.video = Liveswitch.VideoFactory.getInstance(this.videoLocalMedia);
       this.chat = Liveswitch.ChatFactory.getInstance(localMedia);
-      this.device = Liveswitch.DeviceFactory.getInstance(localMedia);
+      this.device = Liveswitch.DeviceFactory.getInstance(this.audioLocalMedia, this.videoLocalMedia);
       this.screenSharing = Liveswitch.ScreenFactory.getInstance(screenMedia);
       // this.authFactory = Liveswitch.AuthFactory.getInstance(localMedia);
 
       this.channel = null;
     }
 
-    Controls.getInstance = function (localMedia, layoutManager, screenMedia, screenLayoutManager, options) {
+    Controls.getInstance = function ({ videoLocalMedia, audioLocalMedia, layoutManager, screenMedia, screenLayoutManager, options}) {
       if (Controls.instance == null) {
-        Controls.instance = new Controls(localMedia, layoutManager, screenMedia, screenLayoutManager, options);
+        Controls.instance = new Controls({ videoLocalMedia, audioLocalMedia, layoutManager, screenMedia, screenLayoutManager, options});
       }
       return Controls.instance;
     };
